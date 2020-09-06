@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.getcwd()))
 # 以下导入分别为 表格类、风格类
 # 如果对表格风格没有自定义需求，Style 也不需要导入
 # 使用 from ColorfulTable import * 的方式也可以全部导入以下类别
-from ColorfulTable import Table, Style
+from colorfultable import Table, Style
 
 # 以下是修改 最大行高、最大列宽、最大列数限制
 # 三项默认分别是 20，80，30，行数则没有限制

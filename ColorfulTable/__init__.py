@@ -26,7 +26,7 @@ from .ctcore import Style, Table
 
 __all__ = ['Style', 'Table']
 
-name = 'ColorfulTable'
+name = 'colorfultable'
 
 author = 'hrpzcf'
 
