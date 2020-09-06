@@ -181,7 +181,7 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
    > 方法原型
    
    ```python
-   addRow(rowindex，row)
+   addRow(rowindex, row)
    ```
    
    - colindex 为索引参数，表示要插入行的位置。

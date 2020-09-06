@@ -1,12 +1,35 @@
-from setuptools import setup, find_packages
+import os
+
+from setuptools import find_packages, setup
+
+from ColorfulTable import author, author_email, name, version, website1
+
+description = 'A module to help print beautiful table on the terminal.'
+long_description = description
+
+if os.path.exists('README.md'):
+    with open('README.md', 'r', encoding='utf-8') as file:
+        long_description = file.read()
 
 setup(
-    name='ColorfulTable',
-    version='2020.0906.33',
-    packages=find_packages(),
-    url='https://gitee.com/hrpzcf/colorfultable',
+    name=name,
+    version=version,
+    description=description,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author=author,
+    author_email=author_email,
+    maintainer=author,
+    maintainer_email=author_email,
     license='MIT License',
-    author='hrpzcf',
-    author_email='hrpzcf@foxmail.com',
-    description='A module to help print beautiful table on the terminal.'
+    packages=find_packages(),
+    platforms=['all'],
+    url=website1,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Topic :: Terminals',
+        'Topic :: System :: Console Fonts',
+    ],
 )

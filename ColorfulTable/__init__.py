@@ -26,7 +26,11 @@ from .ctcore import Style, Table
 
 __all__ = ['Style', 'Table']
 
+name = 'ColorfulTable'
+
 author = 'hrpzcf'
+
+author_email = 'hrpzcf@foxmail.com'
 
 version = '2020.0906.33'
 
