@@ -2,7 +2,7 @@ import os
 
 from setuptools import find_packages, setup
 
-from ColorfulTable import author, author_email, name, version, website1
+from colorfultable import author, author_email, name, version, website1
 
 description = 'A module to help print beautiful table on the terminal.'
 long_description = description
