@@ -16,11 +16,10 @@ Table.limit('MAX_ROW_HEIGHT', 30)
 Table.limit('MAX_COLUMN_WIDTH', 100)
 Table.limit('MAX_COLUMN_NUM', 50)
 
-
 # 随意创建一个表格。初始标题行参数不限于列表，可迭代对象都可以，比如元组('序号',)
 # 可迭代对象内的子数据类型不限于字符串，任意 Python 数据类型都可以，表格会调用其 str 方法显示
 # 表格其他初始参数皆可不写，其他参数功能、用法见文档中的Table类初始化参数
-mytable = Table(['序号'], fbgc={'bg.BrightBlack'})
+mytable = Table(['序号'], fbgc={'bg_BrightBlack'})
 
 # 表格只有一列，后悔了，想继续添加多列标题：
 column_titles = '姓名', '学号', '科目', '成绩'  # 想要添加的列标题
@@ -47,7 +46,7 @@ mytable.addRow((3, '小黄', '123454321', '发呆', 100))
 # 注意，自带的颜色模块只支持 linux 等平台的终端显示表格颜色
 # windows 平台终端要显示颜色则需要安装第三方模块 colorama，否则不能显示颜色
 # 不管在哪两个平台上，用 IDLE 运行程序都不支持显示颜色
-mytable.setColor(None, 3, clrs={'fg.Yellow', 'bg.BrightBlack'})
+mytable.setColor(None, 3, clrs={'fg_Yellow', 'bg_BrightBlack'})
 
 # 对自适应列宽不满意？设置固定列宽
 # setColumnWidth方法第一个参数是 列索引，第二个参数是 列宽值
@@ -61,7 +60,6 @@ mytable.setColumnWidth(3, 30)
 mytable.setAlignment(None, 3, alignh='c')
 # 想同时设置垂直对齐方式？
 # mytable.setAlignment(None, 3, alignh='c', alignv='m')
-
 
 # 在控制台上显示表格，具体参数见 README.md 中的 Table 类实例方法之 show 方法
 mytable.show()
@@ -102,7 +100,7 @@ mytable.setColor()
 
 mytable.show()
 
-input('Press "ENTER" to exit.')
+input('Press ENTER to exit.')
 
 # 细节：
 # 表格中中文与英文混合使用时是否对齐与字体、运行的控制台类型有关

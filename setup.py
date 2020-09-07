@@ -23,13 +23,13 @@ setup(
     maintainer_email=author_email,
     license='MIT License',
     packages=find_packages(),
-    platforms=['all'],
+    platforms='any',
     url=website1,
     classifiers=[
         'Development Status :: 3 - Alpha',
+        'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Topic :: Terminals',
-        'Topic :: System :: Console Fonts',
     ],
 )

@@ -30,7 +30,7 @@ from io import TextIOWrapper
 from os import linesep as os_linesep
 from os import name as os_name
 
-from .colors import COLORS, bg, fg, run_on_idle
+from .colors import _colors, run_on_idle
 
 try:
     from .colors import StreamWrapper
@@ -388,11 +388,10 @@ class Table(list):
             raise TypeError(
                 'Type of parameter <fbgc> should be "tuple"、"list" or "set".'
             )
-        if fbgc is not None:
-            for color in fbgc:
-                if color in COLORS:
-                    continue
-                raise ValueError('No color option like "%s".' % repr(color))
+        if fbgc is not None and (not all(isinstance(s, str) for s in fbgc)):
+            raise ValueError(
+                'The type of the color name in the collection can only be "str".'
+            )
         if not isinstance(style, Style) and style is not None:
             raise TypeError('Parameter <style> should be a "Style" object.')
 
@@ -744,11 +743,10 @@ class Table(list):
             raise TypeError(
                 'Type of parameter <clrs> should be "tuple"、"list" or "set".'
             )
-        if clrs is not None:
-            for color in clrs:
-                if color in COLORS:
-                    continue
-                raise ValueError('No color option like "%s".' % repr(color))
+        if clrs is not None and (not all(isinstance(s, str) for s in clrs)):
+            raise ValueError(
+                'The type of the color name in the collection can only be "str".'
+            )
         if rowindex is not None and colindex is not None:
             if rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
@@ -780,10 +778,10 @@ class Table(list):
             raise TypeError(
                 'Type of parameter <fbgc> should be "tuple"、"list" or "set".'
             )
-        for color in value:
-            if color in COLORS:
-                continue
-            raise ValueError('No color option like "%s".' % repr(color))
+        if not all(isinstance(s, str) for s in value):
+            raise ValueError(
+                'The type of the color name in the collection can only be "str".'
+            )
         self._fbgcolors = value
 
     def defaultAlign(self, *, alignh=None, alignv=None):
@@ -1204,7 +1202,7 @@ def _format_o(stringlist, fbgc, padding):
     mixed_color = ''
     if _COLORFUL:
         for color in fbgc:
-            mixed_color += COLORS[color]
+            mixed_color += getattr(_colors, color)
     for index, string in enumerate(stringlist):
         stringlist[index] = mixed_color + ''.join((padding, string, padding))
 

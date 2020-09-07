@@ -79,38 +79,38 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
 
    | 序号  |   颜色码(字符串) | 代表颜色               |
    | :---: | ---------------: | :--------------------- |
-   |   1   |         fg.reset | 重置前景色和背景色     |
-   |   2   |           fg.red | 前景红色               |
-   |   3   |         fg.green | 前景绿色               |
-   |   4   |        fg.yellow | 前景黄色               |
-   |   5   |          fg.blue | 前景蓝色               |
-   |   6   |       fg.magenta | 前景品红色（紫色）     |
-   |   7   |          fg.cyan | 前景青色               |
-   |   8   |         fg.white | 前景白色               |
-   |   9   |   fg.brightblack | 前景亮黑色（灰色）     |
-   |  10   |     fg.brightred | 前景亮红色             |
-   |  11   |   fg.brightgreen | 前景亮绿色             |
-   |  12   |  fg.brightyellow | 前景亮黄色             |
-   |  13   |    fg.brightblue | 前景亮蓝色             |
-   |  14   | fg.brightmagenta | 前景亮品红色（亮紫色） |
-   |  15   |    fg.brightcyan | 前景亮青色             |
-   |  16   |   fg.brightwhite | 前景亮白色             |
-   |  17   |         bg.reset | 重置前景色和背景色     |
-   |  18   |           bg.red | 背景红色               |
-   |  19   |         bg.green | 背景绿色               |
-   |  20   |        bg.yellow | 背景黄色               |
-   |  21   |          bg.blue | 背景蓝色               |
-   |  22   |       bg.magenta | 背景品红色（紫色）     |
-   |  23   |          bg.cyan | 背景青色               |
-   |  24   |         bg.white | 背景白色               |
-   |  25   |   bg.brightblack | 背景亮黑色（灰色）     |
-   |  26   |     bg.brightred | 背景亮红色             |
-   |  27   |   bg.brightgreen | 背景亮绿色             |
-   |  28   |  bg.brightyellow | 背景亮黄色             |
-   |  29   |    bg.brightblue | 背景亮蓝色             |
-   |  30   | bg.brightmagenta | 背景亮品红色（亮紫色） |
-   |  31   |    bg.brightcyan | 背景亮青色             |
-   |  32   |   bg.brightwhite | 背景亮白色             |
+   |   1   |         fg_reset | 重置前景色和背景色     |
+   |   2   |           fg_red | 前景红色               |
+   |   3   |         fg_green | 前景绿色               |
+   |   4   |        fg_yellow | 前景黄色               |
+   |   5   |          fg_blue | 前景蓝色               |
+   |   6   |       fg_magenta | 前景品红色（紫色）     |
+   |   7   |          fg_cyan | 前景青色               |
+   |   8   |         fg_white | 前景白色               |
+   |   9   |   fg_brightblack | 前景亮黑色（灰色）     |
+   |  10   |     fg_brightred | 前景亮红色             |
+   |  11   |   fg_brightgreen | 前景亮绿色             |
+   |  12   |  fg_brightyellow | 前景亮黄色             |
+   |  13   |    fg_brightblue | 前景亮蓝色             |
+   |  14   | fg_brightmagenta | 前景亮品红色（亮紫色） |
+   |  15   |    fg_brightcyan | 前景亮青色             |
+   |  16   |   fg_brightwhite | 前景亮白色             |
+   |  17   |         bg_reset | 重置前景色和背景色     |
+   |  18   |           bg_red | 背景红色               |
+   |  19   |         bg_green | 背景绿色               |
+   |  20   |        bg_yellow | 背景黄色               |
+   |  21   |          bg_blue | 背景蓝色               |
+   |  22   |       bg_magenta | 背景品红色（紫色）     |
+   |  23   |          bg_cyan | 背景青色               |
+   |  24   |         bg_white | 背景白色               |
+   |  25   |   bg_brightblack | 背景亮黑色（灰色）     |
+   |  26   |     bg_brightred | 背景亮红色             |
+   |  27   |   bg_brightgreen | 背景亮绿色             |
+   |  28   |  bg_brightyellow | 背景亮黄色             |
+   |  29   |    bg_brightblue | 背景亮蓝色             |
+   |  30   | bg_brightmagenta | 背景亮品红色（亮紫色） |
+   |  31   |    bg_brightcyan | 背景亮青色             |
+   |  32   |   bg_brightwhite | 背景亮白色             |
    
    ---
    
@@ -679,10 +679,10 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     mytable = Table(['序号', '姓名', '学号', '科目', '分数', '备注'])
     mytable.addRow(1, (1, '小明', '123', '打瞌睡', 100))
     
-    mytable.setColor(clrs={'fg.yellow', 'bg.red'})
-    # 设置所有单元格的颜色为 {'fg.yellow', 'bg.red'}，即前景色：黄，背景色：红。
+    mytable.setColor(clrs={'fg_Yellow', 'bg_Red'})
+    # 设置所有单元格的颜色为 {'fg_yellow', 'bg_red'}，即前景色：黄，背景色：红。
     
-    mytable.setColor(None, 0, clrs={'fg.red'})
+    mytable.setColor(None, 0, clrs={'fg_Red'})
     # 设置第一列所有单元格的前景色为红色（注：此时单元格的原有颜色会被清空，如果想要单元格的颜色不被清空，请用 getColor 方法获取单元格的颜色集合，再用集合的方法对获取到的颜色集合进行更改）
     ```
 
@@ -789,7 +789,7 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     > 异常
 
     - 当 value 类型不符合要求时触发 TypeError 异常
-    - 当 value 所包含的值不是可用颜色码时触发 ValueError 异常
+    - 当 value 所包含的值不是字符串时触发 ValueError 异常
 
 
 
