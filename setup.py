@@ -11,6 +11,8 @@ if os.path.exists('README.md'):
     with open('README.md', 'r', encoding='utf-8') as file:
         long_description = file.read()
 
+install_requires = ['colorama>=0.4.3'] if os.name == 'nt' else None
+
 setup(
     name=name,
     version=version,
@@ -25,7 +27,8 @@ setup(
     packages=find_packages(),
     platforms='any',
     url=website1,
-    python_requires='>=3',
+    python_requires='>=3.5',
+    install_requires=install_requires,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
@@ -33,4 +36,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Terminals',
     ],
+    keywords=['table', 'console', 'terminal', 'colorful', 'text'],
 )
