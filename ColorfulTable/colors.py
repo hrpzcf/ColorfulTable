@@ -25,16 +25,23 @@
 from os import name as os_name
 from sys import stdout as sys_stdout
 
+# 终端中用于控制颜色的字符
+# 详见：https://en.wikipedia.org/wiki/ANSI_escape_code（包括数字颜色码）
 _CSI_S = ';'
 _CSI_H = '\033['
 _CSI_T = 'm'
 
+# 程序运行于 IDLE 上的标志
+# 关心是否运行于 IDLE Shell 上是因为 IDLE 不支持字符颜色，需要区别对待
 run_on_idle = False
-
+# 导入 IDLE 相关模块成功标志
 _idle_imported = False
+# 导入第三方模块 colorama 标志
 _colorama_imported = False
+# 运行于 windows 平台标志
 _NT = os_name == 'nt'
 
+# 尝试导入 IDLE 输出流，成功则设置 _idle_imported 为 True
 try:
     from idlelib.run import StdOutputFile
 
@@ -42,17 +49,24 @@ try:
 except Exception:
     pass
 
+# 导入成功也不代表运行 IDLE 上，要看输出流是否是上面导入的 StdOutputFile
 if _idle_imported:
     run_on_idle = isinstance(sys_stdout, StdOutputFile)
 
+# 如果程序是运行在 windows 平台上并且不是运行于 IDLE
+# 那就需要 colorama 模块帮助显示字符颜色
+# 其他平台直接输入终端颜色代码即可达到目的，没 windows 这么麻烦
 if _NT and not run_on_idle:
     try:
         from colorama import init, Fore, Back
+        # 导入 colorama 的输出流 StreamWrapper，主模块用于判断输出流是否非文件
         from colorama.ansitowin32 import StreamWrapper
-
+        # 设置 colorama 导入标志为真
         _colorama_imported = True
+        # colorama 用法，设置自动结束颜色为真
         init(autoreset=True)
     except ImportError:
+        # 导入失败（没安装 colorama 模块等原因）显示提示
         from warnings import warn
 
         warn(
@@ -61,41 +75,82 @@ if _NT and not run_on_idle:
 
 
 class MixedColors(object):
+    '''
+    混合色类
+    与不同数据类型相加，返回不同值
+    '''
     def __init__(self, *codes):
+        '''
+        初始化
+        :param codes: list，数字颜色码列表
+        '''
         self.codes = list()
         self.codes.extend(codes)
 
     def __add__(self, other):
+        '''
+        定义两数据类型相加魔法方法
+        :param other: 相加时的其他类实例，支持：MixedColors，Monochrome，str 类。
+        :return: ...
+        '''
         if isinstance(other, str):
+            # 如果加号右边是字符串
             if not other:
+                # 加号右边是空字符串则返回混合色实例自身
                 return self
             if not self.codes:
-                return ''
+                # 颜色代码列表为空则返回原字符串（不修改原字符串）
+                return other
+            # 生成以分号分割的数字颜色码
             string = _CSI_S.join(str(c) for c in self.codes)
+            # 生成设置颜色码，比如 \033[31;42m
             setter = ''.join((_CSI_H, string, _CSI_T))
+            # 重置颜色码
             resetter = '\033[0m'
+            # 返回 设置颜色码 + 字符串 + 重置颜色码 形式的字符串
             return ''.join((setter, other, resetter))
         elif isinstance(other, Monochrome):
+            # 如果加号右边是单色类 Monochrome 实例，则将其数字颜色码
+            # 添加至"混合色 MixedColors"类实例的颜色码列表，返回混合色实例自身
             self.codes.append(other.code)
             return self
         elif isinstance(other, MixedColors):
+            # 如果加号右边也是一个"混合色 MixedColors"类实例,则将它的颜色码取来
+            # 扩展本实例的颜色码列表，并返回本实例自身
             self.codes.extend(other.codes)
             return self
         else:
+            # 加号右边是其他数据类型则抛出异常，结束
             raise TypeError(
                 'Unsupported operand type for +: "%s" and "%s".'
                 % (type(self).__name__, type(other).__name__)
             )
 
     def __radd__(self, other):
+        # 加号左边数据类型没有定义 __add__ 方法或不支持相加右边数据类型时
+        # 会调用右边数据的 __radd__ 方法，如：字符串 + 本类实例，这里把他变成左相加，用 __add__代理
         return self + other
 
 
 class Monochrome(object):
+    '''
+    单色类
+    与不同数据类型相加，返回不同值
+    '''
     def __init__(self, code):
+        '''
+        类初始化方法
+        :param code: int，数字颜色码
+        '''
         self.code = code
 
     def __add__(self, other):
+        '''
+        定义两数据类型相加魔法方法
+        :param other: 相加时的其他类实例，支持：MixedColors，Monochrome，str 类。
+        :return: 与"混合色 MixedColors"类基本同理，不同的是这里返回的是 MixedColors 实例
+        而不是本类实例，因为本单色类实例不能被改变，否则就"变色"了，下次取用时本类实例代表颜色就不对了
+        '''
         if isinstance(other, str):
             if not other:
                 return MixedColors(self.code)
@@ -116,8 +171,11 @@ class Monochrome(object):
     def __radd__(self, other):
         return self + other
 
+# 程序运行于 windows 平台上则用不到以上两个类，需要第三方模块 colorama 来支持显示颜色
 
 class _ColorGroup(object):
+    # 运行于 widdows 平台并且 colorama 模块成功导入
+    # 则将本"颜色组 _ColorGroup"对应颜色属性设置为 colorama 对应的颜色属性
     if _NT and _colorama_imported:
         fg_reset = Fore.RESET
         fg_red = Fore.RED
@@ -153,6 +211,7 @@ class _ColorGroup(object):
         bg_brightcyan = Back.LIGHTCYAN_EX
         bg_brightwhite = Back.LIGHTWHITE_EX
     else:
+        # 运行于其他平台则用数字颜色码来构建颜色
         fg_reset = 0
         fg_red = 31
         fg_green = 32
@@ -188,15 +247,22 @@ class _ColorGroup(object):
         bg_brightwhite = 107
 
     def __getattr__(self, name):
+        # 访问本类不存在的属性会调用此方法，一律抛出异常
         raise AttributeError('No color option like "%s".' % name)
 
     def __getattribute__(self, name):
+        # 定义获取本类属性的魔法方法
+        # 如果运行于 windows 平台且 colorama 模块没导入成功
+        # 则访问本类属性时返回空字符串（主模块 ctcore 中用于与其他字符串相加）
         if _NT and not _colorama_imported:
             return ''
+        # 调用父类魔法方法返回本类属性值
         obj = super().__getattribute__(name)
+        # 如果本类对应名字为 name 的属性是数字，则返回"单色 Monochrome"类实例
         if isinstance(obj, int):
             return Monochrome(obj)
+        # 否则返回原本属性值（也就是 colorama 模块对应的属性值）
         return obj
 
-
+# 实例化颜色组，供主模块 ctcore 导入使用
 _colors = _ColorGroup()

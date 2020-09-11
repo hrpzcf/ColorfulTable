@@ -399,12 +399,12 @@ class Table(list):
         if rowindex is not None:
             if not isinstance(rowindex, int):
                 raise TypeError('Row index should be an integer.')
-            if rowindex >= self._num_rows:
+            if -self._num_rows > rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
         if colindex is not None:
             if not isinstance(colindex, int):
                 raise TypeError('Column index should be an integer.')
-            if colindex >= self._num_cols:
+            if -self._num_cols > colindex >= self._num_cols:
                 raise IndexError('Column index out of range.')
 
     def __str__(self):
@@ -587,7 +587,7 @@ class Table(list):
                 'Integer parameter <colindex> expected, got %s.'
                 % type(colindex).__name__
             )
-        if colindex >= self._num_cols:
+        if -self._num_cols > colindex >= self._num_cols:
             raise IndexError('Column index out of range.')
         columnlist = list()
         for row in self._original:
@@ -611,7 +611,7 @@ class Table(list):
                 'Integer parameter <rowindex> expected, got %s.'
                 % type(rowindex).__name__
             )
-        if rowindex >= self._num_rows:
+        if -self._num_rows > rowindex >= self._num_rows:
             raise IndexError('Row index out of range.')
         rowlist = list(self._original.pop(rowindex))
         self._num_rows -= 1
@@ -668,7 +668,7 @@ class Table(list):
                 % type(rowindex).__name__
             )
         if rowindex is not None:
-            if rowindex >= self._num_rows:
+            if -self._num_rows > rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
         if not isinstance(height, int):
             raise TypeError(
@@ -707,9 +707,9 @@ class Table(list):
                 % (alignv, __ALIGNV__)
             )
         if rowindex is not None and colindex is not None:
-            if rowindex >= self._num_rows:
+            if -self._num_rows > rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
-            if colindex >= self._num_cols:
+            if -self._num_cols > colindex >= self._num_cols:
                 raise IndexError('Column index out of range.')
             self._original[rowindex]._align(colindex, alignh, alignv)
         elif rowindex is None and colindex is None:
@@ -718,12 +718,12 @@ class Table(list):
                     self._original[rowind]._align(colind, alignh, alignv)
         elif rowindex is None or colindex is None:
             if rowindex is not None:
-                if rowindex >= self._num_rows:
+                if -self._num_rows > rowindex >= self._num_rows:
                     raise IndexError('Row index out of range.')
                 for colind in range(self._num_cols):
                     self._original[rowindex]._align(colind, alignh, alignv)
             elif colindex is not None:
-                if colindex >= self._num_cols:
+                if -self._num_cols > colindex >= self._num_cols:
                     raise IndexError('Column index out of range.')
                 for row in self._original:
                     row._align(colindex, alignh, alignv)
@@ -748,9 +748,9 @@ class Table(list):
                 'The type of the color name in the collection can only be "str".'
             )
         if rowindex is not None and colindex is not None:
-            if rowindex >= self._num_rows:
+            if -self._num_rows > rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
-            if colindex >= self._num_cols:
+            if -self._num_cols > colindex >= self._num_cols:
                 raise IndexError('Column index out of range.')
             self._original[rowindex]._setclr(colindex, clrs)
         elif rowindex is None and colindex is None:
@@ -759,12 +759,12 @@ class Table(list):
                     self._original[rowind]._setclr(colind, clrs)
         elif rowindex is None or colindex is None:
             if rowindex is not None:
-                if rowindex >= self._num_rows:
+                if -self._num_rows > rowindex >= self._num_rows:
                     raise IndexError('Row index out of range.')
                 for colind in range(self._num_cols):
                     self._original[rowindex]._setclr(colind, clrs)
             elif colindex is not None:
-                if colindex >= self._num_cols:
+                if -self._num_cols > colindex >= self._num_cols:
                     raise IndexError('Column index out of range.')
                 for row in self._original:
                     row._setclr(colindex, clrs)

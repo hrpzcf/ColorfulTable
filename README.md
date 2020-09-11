@@ -846,7 +846,7 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     - `left_cross = '├'` 左边框三交叉点字符
     - `left_vert = '│'` 左边框垂直线字符
     - `right_cross = '┤'` 右边框三交叉点字符
-    - `right_vert = '│'` 右边框三交叉点字符
+    - `right_vert = '│'` 右边框垂直线字符
     - `center_horz = '─'` 中间水平线字符
     - `center_vert = '│'` 中间垂直线字符
     - `center_cross = '┼'` 中间十字交叉点字符
