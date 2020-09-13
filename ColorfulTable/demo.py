@@ -40,7 +40,7 @@ mytable.addRow((3, '小黄', '123454321', '发呆', 100))
 # 现在我们给第 4 列“科目”整列设置前景色（文字颜色）和背景色
 # 第一个参数是行索引，这里为 None 表示不限于特定行，所有行都包含（列索引为 None 同理）
 # 第二个参数是列索引，3 表示第四列
-# 也可以这样写：mytable.setColor(colindex=3, clrs={'fg.Yellow', 'bg.BrightBlack'})
+# 也可以这样写：mytable.setColor(colindex=3, clrs={'fg.yellow', 'bg.brightblack'})
 # 因为 setColor 方法所有参数默认值都是 None
 # 可以直接忽略 rowindex，以关键字参数方式指定 colindex 的值
 # 注意，自带的颜色模块只支持 linux 等平台的终端显示表格颜色
@@ -61,7 +61,7 @@ mytable.setAlignment(None, 3, alignh='c')
 # 想同时设置垂直对齐方式？
 # mytable.setAlignment(None, 3, alignh='c', alignv='m')
 
-# 在控制台上显示表格，具体参数见 README.md 中的 Table 类实例方法之 show 方法
+# 在终端上显示表格，具体参数见 README.md 中的 Table 类实例方法之 show 方法
 mytable.show()
 
 print('\n' * 3)
@@ -70,7 +70,7 @@ print('\n' * 3)
 otherstyle = Style('classic')
 mytable.setStyle(otherstyle)
 # 也可以在初始化表格的时候添加 style 参数
-# mytable2 = Table(['序号'], fbgc={'fg.Yellow'}, style=otherstyle)
+# mytable2 = Table(['序号'], fbgc={'fg.yellow'}, style=otherstyle)
 mytable.show()
 
 print('\n' * 3)
