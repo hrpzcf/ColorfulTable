@@ -319,7 +319,7 @@ class Table(list):
             header, alignh, alignv, rowfixed, colfixed, fbgc, fill, style
         )
         super(Table, self).__init__()
-        self._original = list()
+        self.rowsText = list()
         self._alignh = alignh
         self._alignv = alignv
         self._col_fixed = colfixed
@@ -329,7 +329,7 @@ class Table(list):
         self._style = style or Style()
         self._col_wids = list()
         headlist = list(header)
-        self._original.append(
+        self.append(
             _RowObj(
                 headlist,
                 self._col_wids,
@@ -372,7 +372,8 @@ class Table(list):
             raise ValueError('The value of <rowfixed> cannot be less than 0.')
         if rowfixed > MAX_ROW_HEIGHT:
             raise ValueError(
-                'The fixed row height exceeds the limit(%d), please modify the value of "MAX_ROW_HEIGHT" if necessary.'
+                'The fixed row height exceeds the limit(%d), please modify the value \
+of "MAX_ROW_HEIGHT" if necessary.'
                 % MAX_ROW_HEIGHT
             )
         if not isinstance(colfixed, int):
@@ -381,7 +382,8 @@ class Table(list):
             raise ValueError('The value of <colfixed> cannot be less than 0.')
         if colfixed > MAX_COLUMN_WIDTH:
             raise ValueError(
-                'The fixed column width exceeds the limit(%d), please modify the value of "MAX_COLUMN_WIDTH" if necessary.'
+                'The fixed column width exceeds the limit(%d), please modify the value \
+of "MAX_COLUMN_WIDTH" if necessary.'
                 % MAX_COLUMN_WIDTH
             )
         if not isinstance(fbgc, (tuple, list, set)) and fbgc is not None:
@@ -434,12 +436,13 @@ class Table(list):
             )
         if self._num_cols + 1 > MAX_COLUMN_NUM:
             raise ValueError(
-                'The number of columns exceeds the limit(%d), please modify the value of MAX_COLUMN_NUM if necessary.'
+                'The number of columns exceeds the limit(%d), please modify the value \
+of MAX_COLUMN_NUM if necessary.'
                 % MAX_COLUMN_NUM
             )
         # 如果 column 是生成器、迭代器
         column = list(column)
-        for row_ind, row_obj in enumerate(self._original):
+        for row_ind, row_obj in enumerate(self):
             try:
                 obj_to_be_added = column[row_ind]
             except IndexError:
@@ -487,7 +490,7 @@ class Table(list):
             self._alignv,
             self._fbgcolors,
         )
-        self._original.insert(rowindex, row_list)
+        self.insert(rowindex, row_list)
         self._num_rows += 1
         for colind in range(self._num_cols):
             self._col_caps[colind] = self._find_cap(colind)
@@ -497,47 +500,47 @@ class Table(list):
         self._check_index(colindex=colindex)
         if colindex is None:
             return
-        return [row[colindex] for row in self._original]
+        return [row[colindex] for row in self]
 
     def getRow(self, rowindex=-1):
         self._check_index(rowindex)
         if rowindex is None:
             return
-        return list(self._original[rowindex])
+        return list(self[rowindex])
 
     def getItem(self, rowindex=-1, colindex=-1):
         self._check_index(rowindex, colindex)
         if rowindex is None or colindex is None:
             return
-        return self._original[rowindex][colindex]
+        return self[rowindex][colindex]
 
     def getString(self, rowindex=-1, colindex=-1):
         self._check_index(rowindex, colindex)
         if rowindex is None or colindex is None:
             return
-        return str(self._original[rowindex][colindex])
+        return str(self[rowindex][colindex])
 
     def writeCell(self, rowindex=None, colindex=None, *, value):
         self._check_index(rowindex, colindex)
         if rowindex is None and colindex is None:
-            for row in self._original:
+            for row in self:
                 for colind in range(len(row)):
                     row[colind] = value
                     self._col_caps[colind] = self._find_cap(colind)
                     self._col_floors[colind] = self._find_floor(colind)
         elif rowindex is None or colindex is None:
             if rowindex is None:
-                for row in self._original:
+                for row in self:
                     row[colindex] = value
                 self._col_caps[colindex] = self._find_cap(colindex)
                 self._col_floors[colindex] = self._find_floor(colindex)
             else:
-                for colind in range(len(self._original[rowindex])):
-                    self._original[rowindex][colind] = value
+                for colind in range(len(self[rowindex])):
+                    self[rowindex][colind] = value
                     self._col_caps[colind] = self._find_cap(colind)
                     self._col_floors[colind] = self._find_floor(colind)
         else:
-            self._original[rowindex][colindex] = value
+            self[rowindex][colindex] = value
             self._col_caps[colindex] = self._find_cap(colindex)
             self._col_floors[colindex] = self._find_floor(colindex)
 
@@ -548,31 +551,29 @@ class Table(list):
         self._check_index(rowindex, colindex)
         if rowindex is None and colindex is None:
             return not any(
-                any(bool(row[colind]) for colind in range(len(row)))
-                for row in self._original
+                any(bool(row[colind]) for colind in range(len(row))) for row in self
             )
         elif rowindex is None or colindex is None:
             if rowindex is None:
-                return not any(bool(row[colindex]) for row in self._original)
+                return not any(bool(row[colindex]) for row in self)
             else:
-                return not any(self._original[rowindex])
+                return not any(self[rowindex])
         else:
-            return not bool(self._original[rowindex][colindex])
+            return not bool(self[rowindex][colindex])
 
     def isFull(self, rowindex, colindex):
         self._check_index(rowindex, colindex)
         if rowindex is None and colindex is None:
             return all(
-                all(bool(row[colind]) for colind in range(len(row)))
-                for row in self._original
+                all(bool(row[colind]) for colind in range(len(row))) for row in self
             )
         elif rowindex is None or colindex is None:
             if rowindex is None:
-                return all(bool(row[colindex]) for row in self._original)
+                return all(bool(row[colindex]) for row in self)
             else:
-                return all(self._original[rowindex])
+                return all(self[rowindex])
         else:
-            return bool(self._original[rowindex][colindex])
+            return bool(self[rowindex][colindex])
 
     def delColumn(self, colindex):
         '''
@@ -590,7 +591,7 @@ class Table(list):
         if -self._num_cols > colindex >= self._num_cols:
             raise IndexError('Column index out of range.')
         columnlist = list()
-        for row in self._original:
+        for row in self:
             columnlist.append(row._delcol(colindex))
         self._num_cols -= 1
         del self._col_fixeds[colindex]
@@ -613,7 +614,7 @@ class Table(list):
             )
         if -self._num_rows > rowindex >= self._num_rows:
             raise IndexError('Row index out of range.')
-        rowlist = list(self._original.pop(rowindex))
+        rowlist = list(self.pop(rowindex))
         self._num_rows -= 1
         for colindex in range(self._num_cols):
             self._col_caps[colindex] = self._find_cap(colindex)
@@ -644,7 +645,8 @@ class Table(list):
             )
         if width > MAX_COLUMN_WIDTH:
             raise ValueError(
-                'The column width to be set exceeds the limit(%d), please modify the value of "MAX_COLUMN_WIDTH" if necessary.'
+                'The column width to be set exceeds the limit(%d), please modify the \
+value of "MAX_COLUMN_WIDTH" if necessary.'
                 % MAX_COLUMN_WIDTH
             )
         if colindex is None:
@@ -676,14 +678,15 @@ class Table(list):
             )
         if height > MAX_ROW_HEIGHT:
             raise ValueError(
-                'The row height to be set exceeds the limit(%d), please modify the value of "MAX_ROW_HEIGHT" if necessary.'
+                'The row height to be set exceeds the limit(%d), please modify the \
+value of "MAX_ROW_HEIGHT" if necessary.'
                 % MAX_ROW_HEIGHT
             )
         if rowindex is None:
-            for row in self._original:
+            for row in self:
                 row._height(height)
             return
-        self._original[rowindex]._height(height)
+        self[rowindex]._height(height)
 
     def setAlignment(self, rowindex=None, colindex=None, *, alignh=None, alignv=None):
         if not (isinstance(rowindex, int) or rowindex is None):
@@ -711,21 +714,21 @@ class Table(list):
                 raise IndexError('Row index out of range.')
             if -self._num_cols > colindex >= self._num_cols:
                 raise IndexError('Column index out of range.')
-            self._original[rowindex]._align(colindex, alignh, alignv)
+            self[rowindex]._align(colindex, alignh, alignv)
         elif rowindex is None and colindex is None:
             for rowind in range(self._num_rows):
                 for colind in range(self._num_cols):
-                    self._original[rowind]._align(colind, alignh, alignv)
+                    self[rowind]._align(colind, alignh, alignv)
         elif rowindex is None or colindex is None:
             if rowindex is not None:
                 if -self._num_rows > rowindex >= self._num_rows:
                     raise IndexError('Row index out of range.')
                 for colind in range(self._num_cols):
-                    self._original[rowindex]._align(colind, alignh, alignv)
+                    self[rowindex]._align(colind, alignh, alignv)
             elif colindex is not None:
                 if -self._num_cols > colindex >= self._num_cols:
                     raise IndexError('Column index out of range.')
-                for row in self._original:
+                for row in self:
                     row._align(colindex, alignh, alignv)
 
     def setColor(self, rowindex=None, colindex=None, *, clrs=None):
@@ -752,26 +755,26 @@ class Table(list):
                 raise IndexError('Row index out of range.')
             if -self._num_cols > colindex >= self._num_cols:
                 raise IndexError('Column index out of range.')
-            self._original[rowindex]._setclr(colindex, clrs)
+            self[rowindex]._setclr(colindex, clrs)
         elif rowindex is None and colindex is None:
             for rowind in range(self._num_rows):
                 for colind in range(self._num_cols):
-                    self._original[rowind]._setclr(colind, clrs)
+                    self[rowind]._setclr(colind, clrs)
         elif rowindex is None or colindex is None:
             if rowindex is not None:
                 if -self._num_rows > rowindex >= self._num_rows:
                     raise IndexError('Row index out of range.')
                 for colind in range(self._num_cols):
-                    self._original[rowindex]._setclr(colind, clrs)
+                    self[rowindex]._setclr(colind, clrs)
             elif colindex is not None:
                 if -self._num_cols > colindex >= self._num_cols:
                     raise IndexError('Column index out of range.')
-                for row in self._original:
+                for row in self:
                     row._setclr(colindex, clrs)
 
     def getColor(self, rowindex, colindex):
-        # TODO 完成索引校验
-        return self._original[rowindex]._getclr(colindex)
+        self._check_index(rowindex, colindex)
+        return self[rowindex]._getclr(colindex)
 
     def defaultClr(self, value):
         if not isinstance(value, (list, tuple, set)):
@@ -872,7 +875,7 @@ class Table(list):
         pad = self._style.cell_pad
         sys.stdout.write(hat + _LNSEP)
         if header:
-            headerform = self._original[0]._form(pad)
+            headerform = self[0]._form(pad)
             for line in headerform:
                 len_line = len(line)
                 sys.stdout.write(self._style.left_vert)
@@ -882,7 +885,7 @@ class Table(list):
                         sys.stdout.write(self._style.center_vert)
                 sys.stdout.write(self._style.right_vert + _LNSEP)
             sys.stdout.write(neck + _LNSEP)
-        body = self._original[1:][start:stop]
+        body = self[1:][start:stop]
         len_body = len(body)
         for index, bodyrow in enumerate(body):
             rowform = bodyrow._form(pad)
@@ -941,9 +944,9 @@ class Table(list):
         self._border['neck'] = neck
         self._border['belt'] = belt
         self._border['shoes'] = shoes
-        self.clear()
-        for row_obj in self._original:
-            self.append(
+        self.rowsText.clear()
+        for row_obj in self:
+            self.rowsText.append(
                 row_obj._gettext(
                     self._style.left_vert,
                     self._style.center_vert,
@@ -961,11 +964,11 @@ class Table(list):
             belt = ''.join((_LNSEP, belt, _LNSEP))
         else:
             belt = _LNSEP
-        body = belt.join(self[1:][start:stop])
+        body = belt.join(self.rowsText[1:][start:stop])
         if not header:
             group = (hat, body, shoes)
         else:
-            group = (hat, self[0], neck, body, shoes)
+            group = (hat, self.rowsText[0], neck, body, shoes)
         return _LNSEP.join(group)
 
     def _col_wids_refresh(self):
@@ -979,7 +982,6 @@ class Table(list):
             else:
                 final_width = self._col_fixeds[ind]
             self._col_wids.append(final_width)
-        return True
 
     def _find_cap(self, colindex):
         '''
@@ -987,7 +989,7 @@ class Table(list):
         :param colindex: 指定列的索引值。
         :return: int: 该列的最大宽度值。
         '''
-        return max(row._colcap(colindex) for row in self._original)
+        return max(row._colcap(colindex) for row in self)
 
     def _find_floor(self, colindex):
         '''
@@ -995,7 +997,7 @@ class Table(list):
         :param colindex: 指定列的索引值。
         :return: int: 该列的宽度下限。
         '''
-        return max(row._colflr(colindex) for row in self._original)
+        return max(row._colflr(colindex) for row in self)
 
 
 def _items_to_str(iterable, num=None):
