@@ -19,7 +19,7 @@ Table.limit('MAX_COLUMN_NUM', 50)
 # 随意创建一个表格。初始标题行参数不限于列表，可迭代对象都可以，比如元组('序号',)
 # 可迭代对象内的子数据类型不限于字符串，任意 Python 数据类型都可以，表格会调用其 str 方法显示
 # 表格其他初始参数皆可不写，其他参数功能、用法见文档中的Table类初始化参数
-mytable = Table(['序号'], fbgc={'bg_blue'})
+mytable = Table(['序号'])
 
 # 表格只有一列，后悔了，想继续添加多列标题：
 column_titles = '姓名', '学号', '科目', '成绩'  # 想要添加的列标题
@@ -30,6 +30,11 @@ for title in column_titles:
     # addColumn 方法接受的两个参数分别是：插入位置索引、要添加的竖列（可迭代对象）
     # 这里我们忽略列索引参数，默认添加为最后一列。竖列 [title] 第一项当然就是标题咯
     mytable.addColumn([title])
+
+# 设置默认颜色代码，往后添加的所有单元格都将默认使用（除指定外）
+# 参数个数不定，可为空（清空表格默认使用的颜色，使用终端默认颜色）
+# 多个颜色参数都是指一个单元格内的颜色，有多个前景色或背景色时，一般最后一个生效
+mytable.defaultClr('fg_yellow')
 
 # 使用添加行方法 addRow 添加一行，第一个参数 1 表示插入到第 1 行前面
 # 这里的索引参数 1 同样可以和 addColumn 方法一样不写，会默认插入为最后一行
@@ -46,7 +51,7 @@ mytable.addRow((3, '小黄', '123454321', '发呆', 100))
 # 注意，自带的颜色模块只支持 linux 等平台的终端显示表格颜色
 # windows 平台终端要显示颜色则需要安装第三方模块 colorama，否则不能显示颜色
 # 不管在哪两个平台上，用 IDLE 运行程序都不支持显示颜色
-mytable.setColor(None, 3, clrs={'fg_green', 'bg_brightblack'})
+mytable.setColor(0, None, clrs={'fg_brightwhite', 'bg_blue'})
 
 # 对自适应列宽不满意？设置固定列宽
 # setColumnWidth方法第一个参数是 列索引，第二个参数是 列宽值
