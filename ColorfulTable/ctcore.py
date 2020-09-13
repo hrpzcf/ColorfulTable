@@ -776,16 +776,14 @@ value of "MAX_ROW_HEIGHT" if necessary.'
         self._check_index(rowindex, colindex)
         return self[rowindex]._getclr(colindex)
 
-    def defaultClr(self, value):
-        if not isinstance(value, (list, tuple, set)):
-            raise TypeError(
-                'Type of parameter <fbgc> should be "tuple"、"list" or "set".'
-            )
-        if not all(isinstance(s, str) for s in value):
+    def defaultClr(self, *values):
+        if not all(isinstance(s, str) for s in values):
             raise ValueError(
                 'The type of the color name in the collection can only be "str".'
             )
-        self._fbgcolors = value
+        for string in values:
+            getattr(_colors, string)
+        self._fbgcolors = set(values)
 
     def defaultAlign(self, *, alignh=None, alignv=None):
         if alignh not in __ALIGNH__.split() and alignh is not None:
