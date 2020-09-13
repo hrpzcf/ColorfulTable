@@ -778,18 +778,18 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     > 方法原型
 
     ```python
-    defaultClr(value)
+    defaultClr(*value)
     ```
 
-    - 参数 value 值类型应为列表(list)、元组(tuple)、集合(set)之一
-    - value 里包含的字符串应为可用的颜色码（见 Table 类初始化参数 fbgc 的可用颜色码表格）
+    - 参数 value 值类型应为字符串（颜色代码），参数个数不限。
+    - value 可用的颜色代码见 Table 类初始化参数 fbgc 的可用颜色码表格。
 
     
     
     > 异常
 
-    - 当 value 类型不符合要求时触发 TypeError 异常
-    - 当 value 所包含的值不是字符串时触发 ValueError 异常
+    - 当 value 类型不符合要求时触发 TypeError 异常。
+    - 当 value 所包含的值不是字符串时触发 ValueError 异常。
 
 
 
@@ -805,16 +805,16 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     defaultAlign(*, alignh=None, alignv=None)
     ```
     
-    - 参数 alignh 为默认使用的水平对齐方式
-    - 参数 alignv 为默认使用的垂直对齐方式
-    - 两个参数都需要以关键字参数方式调用，不需要设置的对齐方式可以不写
+    - 参数 alignh 为默认使用的水平对齐方式。
+    - 参数 alignv 为默认使用的垂直对齐方式。
+    - 两个参数都需要以关键字参数方式调用，不需要设置的对齐方式可以不写。
 
     
     
     > 异常
     
-    - 当 alignh 为无效的值时触发 ValueError 异常
-    - 当 alignv 为无效的值时触发 ValueError 异常
+    - 当 alignh 为无效的值时触发 ValueError 异常。
+    - 当 alignv 为无效的值时触发 ValueError 异常。
 
 
 
