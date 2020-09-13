@@ -8,8 +8,8 @@ description = 'A module to help print beautiful table on the terminal.'
 long_description = description
 
 if os.path.exists('README.md'):
-    with open('README.md', 'r', encoding='utf-8') as file:
-        long_description = file.read()
+    with open('README.md', 'r', encoding='utf-8') as mdfile:
+        long_description = mdfile.read()
 
 install_requires = ['colorama>=0.4.3'] if os.name == 'nt' else None
 
@@ -34,7 +34,6 @@ setup(
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
-        'Topic :: Terminals',
     ],
     keywords=['table', 'console', 'terminal', 'colorful', 'text'],
 )
