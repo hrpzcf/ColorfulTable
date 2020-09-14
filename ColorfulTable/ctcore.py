@@ -59,6 +59,7 @@ __EXCLUDED__ = '\b', '\r', '\t', '\v'
 class Style(object):
     def __init__(self, style='table'):
         '''
+        初始化方法。
         :param style: 预置风格，可用:
             1.table
             2.simple
@@ -73,13 +74,19 @@ class Style(object):
 
     @staticmethod
     def _check_parameter(style):
+        '''
+        检查参数是否是 6 个可用字符串之一。
+        :param style: str，可用值见类初始化参数注释。
+        '''
         if style not in __STYLES__.split():
             raise ValueError(
                 'No style option like <%s>, available: %s.' % (style, __STYLES__)
             )
-        return True
 
     def _initialize(self):
+        '''
+        给类属性赋予初始值，这些属性值就是列表边框线的组成成分。
+        '''
         self.cell_pad = '  '
         self.top_left = '┌'
         self.top_cross = '┬'
@@ -102,10 +109,19 @@ class Style(object):
         self.split_cross = '╪'
 
     def choose(self, style):
+        '''
+        选择预设表格边框线风格方法。
+        根据字符串（style的值）批量设置不同属性值。
+        :param style: str，可用值见类初始化参数注释。
+        '''
+        # 先检查参数 style 是否有效。
         Style._check_parameter(style)
+        # 设置初始值，以后的修改都基于初始属性值修改。
         self._initialize()
+        # style 参数值是 table 就无需更改初始属性值了，全部采用初始值。
         if style == 'table':
             pass
+        # 根据 style 值修改不同属性为不同的值，以下注释掉的属性赋值就是使用初始值，不修改。
         elif style == 'simple':
             # self.cell_pad = '  '
             self.top_left = ''
@@ -213,51 +229,111 @@ class Style(object):
             self.split_cross = '+'
 
     def reset(self):
+        '''
+        重置表格边框线方法（设置为初始值）。
+        '''
         self._initialize()
 
     def __setattr__(self, name, value):
+        '''
+        自定义设置属性值的魔法方法，增加检查要设置的属性值是否是字符串。
+        如果不是字符串则抛出 TypeError 异常。
+        :param name: str，属性名。
+        :param value: str，属性值。
+        '''
+        # 要设置的值不是 str 类型则抛出异常。
         if not isinstance(value, str):
             raise TypeError('Type of attributes of <class "Style"> can only be "str".')
+        # 调用父类 __setattr__ 魔法方法设置属性值。
         super().__setattr__(name, value)
 
 
 class _RowObj(list):
+    '''
+    表格的"行"类对象，继承自 list 类。
+    '''
     def __init__(self, iterable, cwhandle, rowhit, alignh, alignv, fbgc):
+        '''
+        初始化方法。
+        :param iterable: Iterable，可迭代对象，其元素即一行中各单元格元素。
+        :param cwhandle: list，列宽列表，所有 _RowObj 类实例（即"行"）初始化时
+        都传进同一个列宽列表，所以写 handle（句柄）。
+        :param rowhit: int，行高（指的是包含多个单元格的"行"的字符行数），不小于 1。
+        :param alignh: str，水平对齐方式，可用值见全局变量 __ALIGNH__。
+        :param alignv: str，垂直对齐方式，可用值见全局变量 __ALIGNV__。
+        :param fbgc: set[str]，前景色背景色集合，集合内字符串可用值见项目目录下 README.md。
+        '''
+        # 调用父类初始化方法初始化，即 list(iterable)，此时实例 self 就是一个列表。
         super().__init__(iterable)
+        # 单元格水平对齐方式属性，类型为 str，可用值见 __ALIGNH__ 全局变量。
         self._alignh = alignh
+        # 单元格垂直对齐方式属性，类型为 str，可用值见 __ALIGNV__ 全局变量。
         self._alignv = alignv
+        # 根据"行"(_RowObj 实例，self)中单元格(列表元素)数量生成水平对齐方式列表。
         self._alignhs = [alignh] * len(self)
+        # 根据"行"(_RowObj 实例，self)中单元格(列表元素)数量生成垂直对齐方式列表。
         self._alignvs = [alignv] * len(self)
+        # 单元格前景色背景色集合属性，类型为 set[str]。
         self._fbgc = fbgc
+        # 根据"行"(_RowObj 实例，self)中单元格(列表元素)数量生成前背景色列表:list[set[str]]。
         self._fbgcs = [fbgc.copy() for _ in self]
+        # 行高属性，int。
         self._row_hit = rowhit
+        # 列宽列表属性，list。
         self._col_wids = cwhandle
 
     def _addcol(self, index, value):
+        '''
+        单"行"的添加列方法，因是单行所以实际上就是添加一个单元格(元素)。
+        :param index: int，要插入位置索引，即列索引。
+        :param value: 要插入的值，不限数据类型。
+        '''
+        # 给"行"插入一个单元格（元素）。
         self.insert(index, value)
+        # 同时对水平、垂直对齐方式列表同样位置插入默认对齐方式。
         self._alignhs.insert(index, self._alignh)
         self._alignvs.insert(index, self._alignv)
+        # 前背景色列表也在相同位置插入默认颜色集合。
         self._fbgcs.insert(index, self._fbgc.copy())
 
     def _delcol(self, index):
+        '''
+        单"行"的删除列方法，因是单行所以实际上就是删除一个单元格（元素）。
+        :param index: int，要删除的列索引。
+        :return: 返回被删除的元素。
+        '''
+        # 水平、垂直对齐方式列表和前背景色列表也做相应的删除操作。
         del self._fbgcs[index]
         del self._alignhs[index]
         del self._alignvs[index]
         return self.pop(index)
 
     def _height(self, width):
+        '''
+        设置行高方法，即将"行"的"行高"属性设置为给出的行高。
+        :param width: int，可用值为 0 和正整数。
+        '''
         self._row_hit = width
 
     def _setclr(self, index, clrs):
+        '''
+        "行"的设置前背景色方法。
+        :param index: int，索引参数。
+        :param clrs: set[str]，颜色集合。
+        '''
+        self._fbgcs[index].clear()
         if not clrs:
-            self._fbgcs[index].clear()
             return
         if not isinstance(clrs, set):
             clrs = set(clrs)
-        self._fbgcs[index].clear()
         self._fbgcs[index].update(clrs)
 
     def _getclr(self, index):
+        '''
+        获取单元格颜色集合的方法。
+        :param index: int，列索引参数。
+        :return: set，单元格的颜色集合。
+        '''
         return self._fbgcs[index]
 
     def _gettext(self, left_vert, center_vert, right_vert, padding):
@@ -304,16 +380,16 @@ class _RowObj(list):
 
 class Table(list):
     def __init__(
-        self,
-        header,
-        *,
-        alignh='l',
-        alignv='t',
-        rowfixed=0,
-        colfixed=0,
-        fbgc=None,
-        fill='',
-        style=None
+            self,
+            header,
+            *,
+            alignh='l',
+            alignv='t',
+            rowfixed=0,
+            colfixed=0,
+            fbgc=None,
+            fill='',
+            style=None
     ):
         Table._check_parameter(
             header, alignh, alignv, rowfixed, colfixed, fbgc, fill, style
@@ -826,14 +902,14 @@ value of "MAX_ROW_HEIGHT" if necessary.'
             MAX_ROW_HEIGHT = value
 
     def show(
-        self,
-        start=0,
-        stop=None,
-        *,
-        colorful=True,
-        header=True,
-        file=sys.stdout,
-        refresh=True
+            self,
+            start=0,
+            stop=None,
+            *,
+            colorful=True,
+            header=True,
+            file=sys.stdout,
+            refresh=True
     ):
         if not isinstance(start, int):
             raise TypeError('Type of parameter <start> should be "int".')
@@ -1221,13 +1297,13 @@ larger than the target width, which cannot be cut to the target width.'
     while stop <= lenstr:
         strwid = _str_wid(string[start:stop])
         if strwid > width:
-            substrings.append(string[start : stop - 1])
+            substrings.append(string[start: stop - 1])
             start = stop - 1
         elif strwid == width:
             substrings.append(string[start:stop])
             start, stop = stop, stop + 1
         elif string[stop - 1] == _LNSEP or string[stop - 1] == '\n':
-            substrings.append(string[start : stop - 1])
+            substrings.append(string[start: stop - 1])
             start = stop
             stop += 1
         else:
@@ -1255,10 +1331,10 @@ larger than the target width, which cannot be cut to the target width.'
             substrings.insert(0, string[start:stop])
             start, stop = start - 1, start
         elif strwid > width:
-            substrings.insert(0, string[start + 1 : stop])
+            substrings.insert(0, string[start + 1: stop])
             stop = start + 1
         elif string[start] == '\n' or string[start] == _LNSEP:
-            substrings.insert(0, string[start + 1 : stop])
+            substrings.insert(0, string[start + 1: stop])
             stop = start
             start -= 1
         else:
@@ -1266,6 +1342,5 @@ larger than the target width, which cannot be cut to the target width.'
     if stop > 0:
         substrings.insert(0, string[:stop])
     return substrings
-
 
 # TODO 隐含BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
