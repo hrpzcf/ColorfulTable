@@ -59,8 +59,10 @@ if _idle_imported:
 if _NT and not run_on_idle:
     try:
         from colorama import init, Fore, Back
+
         # 导入 colorama 的输出流 StreamWrapper，主模块用于判断输出流是否非文件
         from colorama.ansitowin32 import StreamWrapper
+
         # 设置 colorama 导入标志为真
         _colorama_imported = True
         # colorama 用法，设置自动结束颜色为真
@@ -79,6 +81,7 @@ class MixedColors(object):
     混合色类
     与不同数据类型相加，返回不同值
     '''
+
     def __init__(self, *codes):
         '''
         初始化
@@ -137,6 +140,7 @@ class Monochrome(object):
     单色类
     与不同数据类型相加，返回不同值
     '''
+
     def __init__(self, code):
         '''
         类初始化方法
@@ -171,7 +175,9 @@ class Monochrome(object):
     def __radd__(self, other):
         return self + other
 
+
 # 程序运行于 windows 平台上则用不到以上两个类，需要第三方模块 colorama 来支持显示颜色
+
 
 class _ColorGroup(object):
     # 运行于 widdows 平台并且 colorama 模块成功导入
@@ -248,7 +254,7 @@ class _ColorGroup(object):
 
     def __getattr__(self, name):
         # 访问本类不存在的属性会调用此方法，一律抛出异常
-        raise AttributeError('No color option like "%s".' % name)
+        raise ValueError('No color option like "%s".' % name)
 
     def __getattribute__(self, name):
         # 定义获取本类属性的魔法方法
@@ -263,6 +269,7 @@ class _ColorGroup(object):
             return Monochrome(obj)
         # 否则返回原本属性值（也就是 colorama 模块对应的属性值）
         return obj
+
 
 # 实例化颜色组，供主模块 ctcore 导入使用
 _colors = _ColorGroup()
