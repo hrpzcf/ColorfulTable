@@ -555,7 +555,8 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     setColumnWidth(colindex, width)
     ```
     
-    - 参数 colindex 为要设置列宽的列索引；width 为要设置的宽度，可用值为 0 或小于 MAX_COLUMN_WIDTH（见第21条：limit）的正整数，0 代表自适应列宽。
+    - 参数 colindex 为要设置列宽的列索引；width 为要设置的宽度，可用值为 None、0 或小于 MAX_COLUMN_WIDTH（见第21条：limit）的正整数，0 代表自适应列宽。
+    - 当 colindex 为 None 时，意为将所有列的列宽设置为 width。
     - 当只填一个参数时，该参数默认为 width，意为将所有列的列宽设置为 width。
     
       
@@ -596,7 +597,8 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     setRowHeight(rowindex, height)
     ```
     
-    - 参数 rowindex 为要设置行高的行索引；height 为要设置的行高，可用值为 0 或小于 MAX_ROW_HEIGHT（见第21条：limit）的正整数，0 代表自适应行高。
+    - 参数 rowindex 为要设置行高的行索引；height 为要设置的行高，可用值为 None、0 或小于 MAX_ROW_HEIGHT（见第21条：limit）的正整数，0 代表自适应行高。
+    - 当 rowindex 为 None 时，意为将所有行的行高设置为 height。
     - 参数使用方法与 setColumnWidth 方法相同，只是索引参数变为行索引值。
 
 
@@ -679,10 +681,10 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     mytable = Table(['序号', '姓名', '学号', '科目', '分数', '备注'])
     mytable.addRow(1, (1, '小明', '123', '打瞌睡', 100))
     
-    mytable.setColor(clrs={'fg_Yellow', 'bg_Red'})
+    mytable.setColor(clrs={'fg_yellow', 'bg_red'})
     # 设置所有单元格的颜色为 {'fg_yellow', 'bg_red'}，即前景色：黄，背景色：红。
     
-    mytable.setColor(None, 0, clrs={'fg_Red'})
+    mytable.setColor(None, 0, clrs={'fg_red'})
     # 设置第一列所有单元格的前景色为红色（注：此时单元格的原有颜色会被清空，如果想要单元格的颜色不被清空，请用 getColor 方法获取单元格的颜色集合，再用集合的方法对获取到的颜色集合进行更改）
     ```
 
@@ -788,8 +790,8 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     
     > 异常
 
-    - 当 value 类型不符合要求时触发 TypeError 异常。
-    - 当 value 所包含的值不是字符串时触发 ValueError 异常。
+    - 当 value 值不是字符串时触发 TypeError 异常。
+    - 当 value 值是不可用的颜色代码时触发 ValueError 异常。
 
 
 
