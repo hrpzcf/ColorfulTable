@@ -252,6 +252,7 @@ class _RowObj(list):
     '''
     表格的"行"类对象，继承自 list 类。
     '''
+
     def __init__(self, iterable, cwhandle, rowhit, alignh, alignv, fbgc):
         '''
         初始化方法。
@@ -380,16 +381,16 @@ class _RowObj(list):
 
 class Table(list):
     def __init__(
-            self,
-            header,
-            *,
-            alignh='l',
-            alignv='t',
-            rowfixed=0,
-            colfixed=0,
-            fbgc=None,
-            fill='',
-            style=None
+        self,
+        header,
+        *,
+        alignh='l',
+        alignv='t',
+        rowfixed=0,
+        colfixed=0,
+        fbgc=None,
+        fill='',
+        style=None
     ):
         Table._check_parameter(
             header, alignh, alignv, rowfixed, colfixed, fbgc, fill, style
@@ -854,7 +855,7 @@ value of "MAX_ROW_HEIGHT" if necessary.'
 
     def defaultClr(self, *values):
         if not all(isinstance(s, str) for s in values):
-            raise ValueError(
+            raise TypeError(
                 'The type of the color name in the collection can only be "str".'
             )
         for string in values:
@@ -902,14 +903,14 @@ value of "MAX_ROW_HEIGHT" if necessary.'
             MAX_ROW_HEIGHT = value
 
     def show(
-            self,
-            start=0,
-            stop=None,
-            *,
-            colorful=True,
-            header=True,
-            file=sys.stdout,
-            refresh=True
+        self,
+        start=0,
+        stop=None,
+        *,
+        colorful=True,
+        header=True,
+        file=sys.stdout,
+        refresh=True
     ):
         if not isinstance(start, int):
             raise TypeError('Type of parameter <start> should be "int".')
@@ -1297,13 +1298,13 @@ larger than the target width, which cannot be cut to the target width.'
     while stop <= lenstr:
         strwid = _str_wid(string[start:stop])
         if strwid > width:
-            substrings.append(string[start: stop - 1])
+            substrings.append(string[start : stop - 1])
             start = stop - 1
         elif strwid == width:
             substrings.append(string[start:stop])
             start, stop = stop, stop + 1
         elif string[stop - 1] == _LNSEP or string[stop - 1] == '\n':
-            substrings.append(string[start: stop - 1])
+            substrings.append(string[start : stop - 1])
             start = stop
             stop += 1
         else:
@@ -1331,10 +1332,10 @@ larger than the target width, which cannot be cut to the target width.'
             substrings.insert(0, string[start:stop])
             start, stop = start - 1, start
         elif strwid > width:
-            substrings.insert(0, string[start + 1: stop])
+            substrings.insert(0, string[start + 1 : stop])
             stop = start + 1
         elif string[start] == '\n' or string[start] == _LNSEP:
-            substrings.insert(0, string[start + 1: stop])
+            substrings.insert(0, string[start + 1 : stop])
             stop = start
             start -= 1
         else:
@@ -1342,5 +1343,6 @@ larger than the target width, which cannot be cut to the target width.'
     if stop > 0:
         substrings.insert(0, string[:stop])
     return substrings
+
 
 # TODO 隐含BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
