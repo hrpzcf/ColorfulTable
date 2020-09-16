@@ -2,10 +2,10 @@
 
 ## 模块简介
 
-ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块，使用它可以方便地构建表格并选择打印到控制台上。
+ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模块，使用它可以方便地构建表格并选择打印到终端屏幕上。
 
-- 支持 Linux、Windows 平台
-- 预置 6 种表格（边框）样式，也支持自定义
+- 支持 Linux、Windows 等平台
+- 预置 6 种表格边框样式，也支持自定义
 - 支持自定义每个单元格独立的字体颜色和背景色
 - 支持单元格内换行（如果储存对象是字符串）
 - 支持设置水平对齐方式和垂直对齐方式
@@ -555,7 +555,8 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     setColumnWidth(colindex, width)
     ```
     
-    - 参数 colindex 为要设置列宽的列索引；width 为要设置的宽度，可用值为 0 或小于 MAX_COLUMN_WIDTH（见第21条：limit）的正整数，0 代表自适应列宽。
+    - 参数 colindex 为要设置列宽的列索引；width 为要设置的宽度，可用值为 None、0 或小于 MAX_COLUMN_WIDTH（见第21条：limit）的正整数，0 代表自适应列宽。
+    - 当 colindex 为 None 时，意为将所有列的列宽设置为 width。
     - 当只填一个参数时，该参数默认为 width，意为将所有列的列宽设置为 width。
     
       
@@ -596,7 +597,8 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     setRowHeight(rowindex, height)
     ```
     
-    - 参数 rowindex 为要设置行高的行索引；height 为要设置的行高，可用值为 0 或小于 MAX_ROW_HEIGHT（见第21条：limit）的正整数，0 代表自适应行高。
+    - 参数 rowindex 为要设置行高的行索引；height 为要设置的行高，可用值为 None、0 或小于 MAX_ROW_HEIGHT（见第21条：limit）的正整数，0 代表自适应行高。
+    - 当 rowindex 为 None 时，意为将所有行的行高设置为 height。
     - 参数使用方法与 setColumnWidth 方法相同，只是索引参数变为行索引值。
 
 
@@ -679,10 +681,10 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     mytable = Table(['序号', '姓名', '学号', '科目', '分数', '备注'])
     mytable.addRow(1, (1, '小明', '123', '打瞌睡', 100))
     
-    mytable.setColor(clrs={'fg_Yellow', 'bg_Red'})
+    mytable.setColor(clrs={'fg_yellow', 'bg_red'})
     # 设置所有单元格的颜色为 {'fg_yellow', 'bg_red'}，即前景色：黄，背景色：红。
     
-    mytable.setColor(None, 0, clrs={'fg_Red'})
+    mytable.setColor(None, 0, clrs={'fg_red'})
     # 设置第一列所有单元格的前景色为红色（注：此时单元格的原有颜色会被清空，如果想要单元格的颜色不被清空，请用 getColor 方法获取单元格的颜色集合，再用集合的方法对获取到的颜色集合进行更改）
     ```
 
@@ -778,18 +780,18 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     > 方法原型
 
     ```python
-    defaultClr(value)
+    defaultClr(*value)
     ```
 
-    - 参数 value 值类型应为列表(list)、元组(tuple)、集合(set)之一
-    - value 里包含的字符串应为可用的颜色码（见 Table 类初始化参数 fbgc 的可用颜色码表格）
+    - 参数 value 值类型应为字符串（颜色代码），参数个数不限。
+    - value 可用的颜色代码见 Table 类初始化参数 fbgc 的可用颜色码表格。
 
     
     
     > 异常
 
-    - 当 value 类型不符合要求时触发 TypeError 异常
-    - 当 value 所包含的值不是字符串时触发 ValueError 异常
+    - 当 value 值不是字符串时触发 TypeError 异常。
+    - 当 value 值是不可用的颜色代码时触发 ValueError 异常。
 
 
 
@@ -805,16 +807,16 @@ ColorfulTable 是一个用于在控制台上打印漂亮表格的 Python3 模块
     defaultAlign(*, alignh=None, alignv=None)
     ```
     
-    - 参数 alignh 为默认使用的水平对齐方式
-    - 参数 alignv 为默认使用的垂直对齐方式
-    - 两个参数都需要以关键字参数方式调用，不需要设置的对齐方式可以不写
+    - 参数 alignh 为默认使用的水平对齐方式。
+    - 参数 alignv 为默认使用的垂直对齐方式。
+    - 两个参数都需要以关键字参数方式调用，不需要设置的对齐方式可以不写。
 
     
     
     > 异常
     
-    - 当 alignh 为无效的值时触发 ValueError 异常
-    - 当 alignv 为无效的值时触发 ValueError 异常
+    - 当 alignh 为无效的值时触发 ValueError 异常。
+    - 当 alignv 为无效的值时触发 ValueError 异常。
 
 
 
