@@ -1111,6 +1111,7 @@ def _chr_wid(char):
     # 扩展G	4939字	30000-3134A
     if 0x30000 <= code <= 0x3134A:
         return 2
+    # 控制字符
     if code in (0x0000, 0x0008, 0x0009, 0x000B, 0x000D, 0x001F, 0x007F):
         return 0
     # 猜测其他 Unicode 字符宽度为 1
@@ -1118,8 +1119,21 @@ def _chr_wid(char):
 
 
 def _str_wid(string):
-    '''返回字符串的总宽度。(以半角英文字符占一个单位宽度为基准)'''
-    return sum(_chr_wid(char) for char in string)
+    '''
+    以半角英文字符为一个单位宽度，返回字符串的总宽度。
+    如果中间有换行符，则计算换行符间的字符串宽度，返回它们之中最大的宽度。
+    '''
+    strings_max_width, sub_str_width = 0, 0
+    for c in string:
+        if c in (_LNSEP, '\n'):
+            if sub_str_width > strings_max_width:
+                strings_max_width = sub_str_width
+            sub_str_width = 0
+            continue
+        sub_str_width += _chr_wid(c)
+    if sub_str_width > strings_max_width:
+        strings_max_width = sub_str_width
+    return strings_max_width
 
 
 def _max_char_wid(string):
