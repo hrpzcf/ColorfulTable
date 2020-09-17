@@ -338,23 +338,53 @@ class _RowObj(list):
         return self._fbgcs[index]
 
     def _gettext(self, left_vert, center_vert, right_vert, padding):
+        '''
+        获取"行"的文本格式的方法，即将各单元格所存对象的字符，按对齐、颜色、垂直边框线等要求
+        构建的文本格式。
+        :param left_vert: str，左垂直边框线
+        :param center_vert: str，中间垂直边框线
+        :param right_vert: str，右垂直边框线
+        :param padding: str，单元格内容两侧填充
+        :return: str，构建完成的"行"的文本格式
+        '''
+        # 假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
+        # 假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m
+        # 则以下 _form 方法返回的是如此形式：
+        # 返回表格行 = [
+        # 文本行 1：['012'， 'abc'， '   ', '  ']
+        # 文本行 2：[' 3 '， 'def'， ' h ', '  ']
+        # 文本行 3：['   '， ' g '， '   ', '  ']
+        # ]
         row_fmted = self._form(padding)
         if not row_fmted:
             return
         for line in row_fmted:
+            # 为每个文本行的最左、最右分别加上"左(left_vert)右(right_vert)垂直边框线"
             line[0] = ''.join((left_vert, line[0]))
             line[-1] = ''.join((line[-1], right_vert))
-        lines = (center_vert.join(line) for line in row_fmted)
-        row_text = _LNSEP.join(lines)
-        return row_text
+        # 用"中间垂直边框线(center_vert)"把"文本行"列表串成字符串形式
+        # 每个"文本行"之间用换行符串起来，得到一个"表格行"的字符串形式并返回
+        return _LNSEP.join(center_vert.join(line) for line in row_fmted)
 
     def _colcap(self, index):
+        '''
+        "表格行"的获取指定列最大列宽值方法。
+        :param index: int，列索引
+        :return: int，列宽
+        '''
+        # 注意列宽不能为 0，所以 "..or 1"
         return _str_wid(str(self[index])) or 1
 
     def _colflr(self, index):
+        '''
+        "表格行"的获取指定列列宽下限方法。
+        :param index: int，列索引
+        :return: int，列宽值下限.
+        '''
+        # 注意，列宽下限值由列中最大的单个字符宽度决定
         string = str(self[index])
         if not string:
-            return 1
+            return 1  # 下限不能为 0
         return max(_chr_wid(c) for c in string)
 
     def _align(self, index, alignh, alignv):
