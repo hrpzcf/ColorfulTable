@@ -250,13 +250,13 @@ class Style(object):
 
 class _RowObj(list):
     '''
-    表格的"行"类对象，继承自 list 类。
+    表格的"行"类，继承自 list。
     '''
 
     def __init__(self, iterable, cwhandle, rowhit, alignh, alignv, fbgc):
         '''
         初始化方法。
-        :param iterable: Iterable，可迭代对象，其元素即一行中各单元格元素。
+        :param iterable: Iterable，可迭代对象，其中的元素即一行中各单元格的元素。
         :param cwhandle: list，列宽列表，所有 _RowObj 类实例（即"行"）初始化时
         都传进同一个列宽列表，所以写 handle（句柄）。
         :param rowhit: int，行高（指的是包含多个单元格的"行"的字符行数），不小于 1。
@@ -407,10 +407,11 @@ class _RowObj(list):
         每个内层列表表示"表格行"里的每个单元格，内层列表里的元素表示单元格里不同小行的元素。
         但是以上形式的二维列表不方便把它拼接成一个表示"表格行"的大字符串，
         所以，要把它转换成另一个形式：每个内层列表表示一个小行，小行包含多个单元格，
-        但只包含单元格里的一部分元素，就如 _gettext 方法中对本方法返回值的示意图所示。
+        但只包含单元格里的一部分(一个单元格里几个小行中的一个)，
+        就如 _gettext 方法中对本方法返回值的示意图所示。
 
         :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边框线。
-        :return:list[list[str]]，已格式化的"表格行"的二维列表形式，如下：
+        :return: list[list[str]]，已格式化的"表格行"的二维列表形式，如下：
             假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
             假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m。
             则 _form 方法的返回值是以下数据形式：
@@ -438,6 +439,9 @@ class _RowObj(list):
 
 
 class Table(list):
+    '''
+    主表格类，继承自 list。
+    '''
     def __init__(
         self,
         header,
@@ -450,39 +454,73 @@ class Table(list):
         fill='',
         style=None
     ):
+        '''
+        初始化方法。
+        :param header: Iterable，可迭代对象，初始化表格时的表格首行，其实与普通行并无区别，
+        删除首行后第二行变首行。
+        :param alignh: str，水平对齐方式，单元格未指定水平对齐方式时默认使用该对齐方式，
+        可用值见 __ALIGNH__ 全局变量值，参数默认值为 l。
+        :param alignv: str，垂直对齐方式，单元格未指定垂直对齐方式时默认使用该对齐方式，
+        可用值见 __ALIGNV__ 全局变量值，参数默认值为 t。
+        :param rowfixed: int，行高，新添加的行默认使用的行高值，可用值为 0 或
+        小于 MAX_ROW_HEIGHT 的整数，参数默认值为 0。
+        :param colfixed: int，列宽，新添加的行、列默认使用的列宽值，可用值为 0 或
+        小于 MAX_COLUMN_WIDTH 的整数，参数默认值为 0。
+        :param fbgc: set[str]，包含可用代表颜色的字符串的集合，新增的单元格默认使用该前背景色，
+        参数默认值为空集合，可用的颜色代表字符为同目录下 colors 模块中 _ColorGroup 类的属性名
+        的字符串形式(或见 README.md 文件)。
+        :param fill: any，任意数据类型，当添加行或列时，添加的行或列长度短于表格现有列数或行数
+        时，默认使用 fill 来补足长度，参数默认值为空字符串。
+        :param style: 数据类型应为 Style 实例，Style 类包含所需的各种边框线。
+        '''
+        # 检查参数是否符合要求
         Table._check_parameter(
             header, alignh, alignv, rowfixed, colfixed, fbgc, fill, style
         )
+        # 调用父类初始化方法，因为继承自 list，此时本类实例(self)就是一个列表
         super(Table, self).__init__()
+        # rowsText用于储存表格中"行"的字符串形式
         self.rowsText = list()
+        # 默认水平、垂直对齐方式
         self._alignh = alignh
         self._alignv = alignv
+        # 默认使用的固定列宽、行高值
         self._col_fixed = colfixed
         self._row_fixed = rowfixed
+        # 默认使用的前背景色集合
         self._fbgcolors = fbgc or set()
+        # 默认使用的补足对象
         self._filler = fill
+        # 边框线 Style 类实例
         self._style = style or Style()
+        # 最终列宽列表(固定列宽列表、列宽上限、下限列表合并，添加最终值进去)
         self._col_wids = list()
+        # 可迭代对象转换为列表好计算列表长度
         headlist = list(header)
+        # 本类实例添加首行 _RowObj 类实例。因为本类实例和_RowObj类实例都是列表，所以可以用
+        # 访问二维列表一样的方法访问本类实例中的源数据(已添加的行、列、单元格)
         self.append(
             _RowObj(
-                headlist,
-                self._col_wids,
-                self._row_fixed,
-                self._alignh,
-                'bottom',
-                self._fbgcolors,
+                headlist, # header
+                self._col_wids,     # 最终列宽列表
+                self._row_fixed,    # 行高
+                self._alignh,       # 水平对齐方式
+                'bottom',           # 垂直对齐方式
+                self._fbgcolors,    # 前背景色集合
             )
         )
-        self._num_rows = 1
-        self._num_cols = len(headlist)
-        str_head = _items_to_str(headlist)
+        self._num_rows = 1                  # 行数
+        self._num_cols = len(headlist)      # 列数
+        str_head = _items_to_str(headlist)  # 将 header 中元素转换为字符串用于计算字符宽度等
         # 列固定宽度(用户指定)
         self._col_fixeds = [colfixed for _ in headlist]
         # 列最大宽度(字符串宽度)
         self._col_caps = [_str_wid(s) or 1 for s in str_head]
         # 列宽度下限(由列中宽度最大的单个字符决定)
         self._col_floors = [_max_char_wid(s) for s in str_head]
+        # 边框线的部分组合，依次为：
+        # 最顶层一行边框线(hat)、首行与主体分隔线(neck)、
+        # 主体中各行直接的分隔线(belt)、最底层一行边框线(shoes)
         self._border = dict(hat='', neck='', belt='', shoes='')
 
     @staticmethod
@@ -1417,4 +1455,6 @@ larger than the target width, which cannot be cut to the target width.'
     return substrings
 
 
-# TODO 隐含BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
+# TODO BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，
+#  对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
+# TODO BUG: 表格不添加任何列时，打印出来的边框线有异常。
