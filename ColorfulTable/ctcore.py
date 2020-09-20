@@ -679,11 +679,11 @@ class Table(list):
             )
         # 如果row是生成器、迭代器，要转换为列表好进行索引操作
         row_list = list(row)
-        len_lgt, len_row = self._num_cols, len(row_list)
-        if len_row > len_lgt:
-            row_list = row_list[:len_lgt]
-        elif len_row < len_lgt:
-            row_list.extend([self._filler] * (len_lgt - len_row))
+        len_row = len(row_list)
+        if len_row > self._num_cols:
+            row_list = row_list[: self._num_cols]
+        elif len_row < self._num_cols:
+            row_list.extend([self._filler] * (self._num_cols - len_row))
         row_list = _RowObj(
             row_list,
             self._col_wids,
