@@ -309,12 +309,12 @@ class _RowObj(list):
         del self._alignvs[index]
         return self.pop(index)
 
-    def _height(self, width):
+    def _height(self, height):
         '''
         设置行高方法，即将"行"的"行高"属性设置为给出的行高。
-        :param width: int，可用值为 0 和正整数。
+        :param height: int，可用值为 0 和正整数。
         '''
-        self._row_hit = width
+        self._row_hit = height
 
     def _setclr(self, index, clrs):
         '''
@@ -348,12 +348,12 @@ class _RowObj(list):
         :return: str，构建完成的"行"的文本格式
         '''
         # 假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
-        # 假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m
-        # 则以下 _form 方法返回的是如此形式：
-        # 返回表格行 = [
-        # 文本行 1：['012'， 'abc'， '   ', '  ']
-        # 文本行 2：[' 3 '， 'def'， ' h ', '  ']
-        # 文本行 3：['   '， ' g '， '   ', '  ']
+        # 假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m。
+        # 则 _form 方法的返回值是以下数据形式：
+        # 表格行 = [
+        # 小行 1：['012'， 'abc'， '   ', '  '],
+        # 小行 2：[' 3 '， 'def'， ' h ', '  '],
+        # 小行 3：['   '， ' g '， '   ', '  '],
         # ]
         row_fmted = self._form(padding)
         if not row_fmted:
@@ -370,7 +370,7 @@ class _RowObj(list):
         '''
         "表格行"的获取指定列最大列宽值方法。
         :param index: int，列索引
-        :return: int，列宽
+        :return: int，最大列宽值
         '''
         # 注意列宽不能为 0，所以 "..or 1"
         return _str_wid(str(self[index])) or 1
@@ -379,7 +379,7 @@ class _RowObj(list):
         '''
         "表格行"的获取指定列列宽下限方法。
         :param index: int，列索引
-        :return: int，列宽值下限.
+        :return: int，列宽值下限
         '''
         # 注意，列宽下限值由列中最大的单个字符宽度决定
         string = str(self[index])
@@ -388,12 +388,39 @@ class _RowObj(list):
         return max(_chr_wid(c) for c in string)
 
     def _align(self, index, alignh, alignv):
+        '''
+        "表格行"设置单元格对齐方式方法。
+        :param index: int，列索引
+        :param alignh: str，水平对齐方式，可用值见 __ALIGNH__ 全局变量
+        :param alignv: str，垂直对齐方式，可用值见 __ALIGNV__ 全局变量
+        '''
         if alignh is not None:
+            # 将"表格行"的水平对齐方式列表对应索引单元格水平对齐设置为 alignh
             self._alignhs[index] = alignh
         if alignv is not None:
+            # 将"表格行"的垂直对齐方式列表对应索引单元格垂直对齐设置为 alignv
             self._alignvs[index] = alignv
 
     def _form(self, padding):
+        '''
+        创建一个已格式化的"表格行"的二维列表形式，最外层列表表示一个"表格行"，
+        每个内层列表表示"表格行"里的每个单元格，内层列表里的元素表示单元格里不同小行的元素。
+        但是以上形式的二维列表不方便把它拼接成一个表示"表格行"的大字符串，
+        所以，要把它转换成另一个形式：每个内层列表表示一个小行，小行包含多个单元格，
+        但只包含单元格里的一部分元素，就如 _gettext 方法中对本方法返回值的示意图所示。
+
+        :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边框线。
+        :return:list[list[str]]，已格式化的"表格行"的二维列表形式，如下：
+            假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
+            假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m。
+            则 _form 方法的返回值是以下数据形式：
+            表格行 = [
+            小行 1：['012'， 'abc'， '   ', '  '],
+            小行 2：[' 3 '， 'def'， ' h ', '  '],
+            小行 3：['   '， ' g '， '   ', '  '],
+            ]
+        '''
+        # 如果源数据为空(即添加的行是空行，但一般不会出现)
         if not self:
             return
         row_with_cells = _format(
@@ -405,6 +432,7 @@ class _RowObj(list):
             self._fbgcs,
             padding,
         )
+        # 将已格式化的"表格行"的二维列表形式转换成最终形式
         row_with_lines = [list(tup) for tup in zip(*row_with_cells)]
         return row_with_lines
 
