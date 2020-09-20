@@ -524,6 +524,9 @@ class Table(list):
 
     @staticmethod
     def _check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style):
+        '''
+        检查初始化参数是否符合要求方法，如果参数不符合要求则抛出异常，中断程序。
+        '''
         if not isinstance(header, Iterable):
             raise TypeError('The <header> should be an iterable object.')
         if not header:
@@ -570,6 +573,11 @@ class Table(list):
             raise TypeError('Parameter <style> should be a "Style" object.')
 
     def _check_index(self, rowindex=None, colindex=None):
+        '''
+        检查行列索引值是否是整数及是否超出范围方法(索引值为 None 不检查)。
+        :param rowindex: int，要检查的行索引值。
+        :param colindex: int，要检查的列索引值。
+        '''
         if rowindex is not None:
             if not isinstance(rowindex, int):
                 raise TypeError('Row index should be an integer.')
@@ -582,21 +590,31 @@ class Table(list):
                 raise IndexError('Column index out of range.')
 
     def __str__(self):
+        '''
+        重写 __str__ 魔法方法，使打印本类实例时以表格形式输出，而不是对象内存地址。
+        :return: str，已构建完成的整个表格的字符串形式。
+        '''
         self._text_refresh()
         return self._text()
 
+    # 将 __repr__ 魔法方法指向 __str__ 方法，交互模式输出时用 __str__ 代理。
     __repr__ = __str__
 
     def addColumn(self, colindex, column=None):
-        '''Table 实例对象的插入列的方法。
+        '''
+        Table 实例对象的插入列方法。
             1.要插入的列的行数比现有行数多则截断，比现有行数少则用空字符补足；
             2.可不带索引参数 colindex，默认把列插入到所有列末尾。
         :param colindex: int, 插入位置索引。
         :param column: Iterable, 要插入的列。
-        :return: None: 无返回值。
         '''
+        # 如果要插入的列 column 值是 None (column 参数默认值是 None)，
+        # 则说明 addColumn 方法只接收到一个参数 colindex，而我们规定接收到的参数
+        # 默认是要插入的列，所以要交换一下参数值，colindex 值给 column，column 的值赋值为
+        # self._num_cols，按 self._num_cols 值插入就是最后一列。
         if column is None:
             column, colindex = colindex, self._num_cols
+        # 再检查参数类型是否符号要求，不符合则抛出异常
         if not isinstance(colindex, int):
             raise TypeError(
                 'Integer parameter <colindex> expected, got %s.'
@@ -612,30 +630,42 @@ class Table(list):
                 'please modify the value of MAX_COLUMN_NUM if necessary.'
                 % MAX_COLUMN_NUM
             )
-        # 如果 column 是生成器、迭代器
+        # 如果 column 是生成器、迭代器，要转换为列表好进行索引操作
         column = list(column)
+        # 枚举本类实例(self)里的行
         for row_ind, row_obj in enumerate(self):
             try:
+                # 要被插入到本行的元素 obj_to_be_added，从 column
+                # 抓取对应元素 column[row_ind]
                 obj_to_be_added = column[row_ind]
+            # 如果索引错误(超出范围)，则说明 column 元素不够多，不能一一对应所有的行
             except IndexError:
+                # 则把要插入的元素指定为 self._filler(默认填充对象)
                 obj_to_be_added = self._filler
             except Exception:
+                # 其他未知异常
                 raise Exception('Unexpected exception.')
+            # 调用行 _RowObj 类实例的 _addcol 方法插入单元格
+            # 因为这里仅针对一行所以不说插入列了
             row_obj._addcol(colindex, obj_to_be_added)
+        # 列计数加 1
         self._num_cols += 1
+        # 固定列宽列表相应列位置也要插入列宽值，插入的值使用默认列宽 self._col_fixed
         self._col_fixeds.insert(colindex, self._col_fixed)
+        # 调用本类的 _find_cap、_find_floor 方法分别找出所有行相应列的列宽上限下限值
+        # 并在上限、下限值列表相应插入值
         self._col_caps.insert(colindex, self._find_cap(colindex))
         self._col_floors.insert(colindex, self._find_floor(colindex))
 
     def addRow(self, rowindex, row=None):
         '''
-        Table 实例的插入行的方法。
+        Table 实例的插入行方法。
             1.要插入的行的列数比现有列数多则截断，比现有列数少则用 filler 补足；
             2.可不带索引参数 rowindex，默认把行插入到所有行末尾。
         :param rowindex: int, 插入位置索引。
         :param row: Iterable, 要插入的行。
-        :return: None: 无返回值。
         '''
+        # 同上面的插入列方法 addColumn
         if row is None:
             row, rowindex = rowindex, self._num_rows
         if not isinstance(rowindex, int):
@@ -647,7 +677,7 @@ class Table(list):
             raise TypeError(
                 'Iterable parameter <row> expected, got %s.' % type(row).__name__
             )
-        # 如果row是生成器、迭代器
+        # 如果row是生成器、迭代器，要转换为列表好进行索引操作
         row_list = list(row)
         len_lgt, len_row = self._num_cols, len(row_list)
         if len_row > len_lgt:
