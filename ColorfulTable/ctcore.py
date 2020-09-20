@@ -68,12 +68,12 @@ class Style(object):
             5.simple-ascii
             6.classic-ascii
         '''
-        Style._check_parameter(style)
+        Style._check_init(style)
         self._initialize()
         self.choose(style)
 
     @staticmethod
-    def _check_parameter(style):
+    def _check_init(style):
         '''
         检查参数是否是 6 个可用字符串之一。
         :param style: str，可用值见类初始化参数注释。
@@ -115,7 +115,7 @@ class Style(object):
         :param style: str，可用值见类初始化参数注释。
         '''
         # 先检查参数 style 是否有效。
-        Style._check_parameter(style)
+        Style._check_init(style)
         # 设置初始值，以后的修改都基于初始属性值修改。
         self._initialize()
         # style 参数值是 table 就无需更改初始属性值了，全部采用初始值。
@@ -442,6 +442,7 @@ class Table(list):
     '''
     主表格类，继承自 list。
     '''
+
     def __init__(
         self,
         header,
@@ -474,9 +475,7 @@ class Table(list):
         :param style: 数据类型应为 Style 实例，Style 类包含所需的各种边框线。
         '''
         # 检查参数是否符合要求
-        Table._check_parameter(
-            header, alignh, alignv, rowfixed, colfixed, fbgc, fill, style
-        )
+        Table._check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style)
         # 调用父类初始化方法，因为继承自 list，此时本类实例(self)就是一个列表
         super(Table, self).__init__()
         # rowsText用于储存表格中"行"的字符串形式
@@ -501,16 +500,16 @@ class Table(list):
         # 访问二维列表一样的方法访问本类实例中的源数据(已添加的行、列、单元格)
         self.append(
             _RowObj(
-                headlist, # header
-                self._col_wids,     # 最终列宽列表
-                self._row_fixed,    # 行高
-                self._alignh,       # 水平对齐方式
-                'bottom',           # 垂直对齐方式
-                self._fbgcolors,    # 前背景色集合
+                headlist,  # header
+                self._col_wids,  # 最终列宽列表
+                self._row_fixed,  # 行高
+                self._alignh,  # 水平对齐方式
+                'bottom',  # 垂直对齐方式
+                self._fbgcolors,  # 前背景色集合
             )
         )
-        self._num_rows = 1                  # 行数
-        self._num_cols = len(headlist)      # 列数
+        self._num_rows = 1  # 行数
+        self._num_cols = len(headlist)  # 列数
         str_head = _items_to_str(headlist)  # 将 header 中元素转换为字符串用于计算字符宽度等
         # 列固定宽度(用户指定)
         self._col_fixeds = [colfixed for _ in headlist]
@@ -524,7 +523,7 @@ class Table(list):
         self._border = dict(hat='', neck='', belt='', shoes='')
 
     @staticmethod
-    def _check_parameter(header, alignh, alignv, rowfixed, colfixed, fbgc, fill, style):
+    def _check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style):
         if not isinstance(header, Iterable):
             raise TypeError('The <header> should be an iterable object.')
         if not header:
@@ -545,8 +544,8 @@ class Table(list):
             raise ValueError('The value of <rowfixed> cannot be less than 0.')
         if rowfixed > MAX_ROW_HEIGHT:
             raise ValueError(
-                'The fixed row height exceeds the limit(%d), please modify the value \
-of "MAX_ROW_HEIGHT" if necessary.'
+                'The fixed row height exceeds the limit(%d), '
+                'please modify the value of "MAX_ROW_HEIGHT" if necessary.'
                 % MAX_ROW_HEIGHT
             )
         if not isinstance(colfixed, int):
@@ -555,8 +554,8 @@ of "MAX_ROW_HEIGHT" if necessary.'
             raise ValueError('The value of <colfixed> cannot be less than 0.')
         if colfixed > MAX_COLUMN_WIDTH:
             raise ValueError(
-                'The fixed column width exceeds the limit(%d), please modify the value \
-of "MAX_COLUMN_WIDTH" if necessary.'
+                'The fixed column width exceeds the limit(%d), '
+                'please modify the value of "MAX_COLUMN_WIDTH" if necessary.'
                 % MAX_COLUMN_WIDTH
             )
         if not isinstance(fbgc, (tuple, list, set)) and fbgc is not None:
@@ -609,8 +608,8 @@ of "MAX_COLUMN_WIDTH" if necessary.'
             )
         if self._num_cols + 1 > MAX_COLUMN_NUM:
             raise ValueError(
-                'The number of columns exceeds the limit(%d), please modify the value \
-of MAX_COLUMN_NUM if necessary.'
+                'The number of columns exceeds the limit(%d), '
+                'please modify the value of MAX_COLUMN_NUM if necessary.'
                 % MAX_COLUMN_NUM
             )
         # 如果 column 是生成器、迭代器
@@ -818,8 +817,8 @@ of MAX_COLUMN_NUM if necessary.'
             )
         if width > MAX_COLUMN_WIDTH:
             raise ValueError(
-                'The column width to be set exceeds the limit(%d), please modify the \
-value of "MAX_COLUMN_WIDTH" if necessary.'
+                'The column width to be set exceeds the limit(%d), '
+                'please modify the value of "MAX_COLUMN_WIDTH" if necessary.'
                 % MAX_COLUMN_WIDTH
             )
         if colindex is None:
@@ -851,8 +850,8 @@ value of "MAX_COLUMN_WIDTH" if necessary.'
             )
         if height > MAX_ROW_HEIGHT:
             raise ValueError(
-                'The row height to be set exceeds the limit(%d), please modify the \
-value of "MAX_ROW_HEIGHT" if necessary.'
+                'The row height to be set exceeds the limit(%d), '
+                'please modify the value of "MAX_ROW_HEIGHT" if necessary.'
                 % MAX_ROW_HEIGHT
             )
         if rowindex is None:
@@ -1028,7 +1027,7 @@ value of "MAX_ROW_HEIGHT" if necessary.'
                 file.write(_LNSEP)
                 file.flush()
             except Exception:
-                raise IOError('Failed to write to file or print on the console.')
+                raise IOError('Failed to write to file or print on terminal.')
         _COLORFUL = True
         if file is sys.stdout:
             return
@@ -1399,8 +1398,8 @@ def _lsplit(string, width):
         raise TypeError('Type of value of parameter <string> should be "str".')
     if width < _max_char_wid(string):
         raise ValueError(
-            'The character in the string has a width \
-larger than the target width, which cannot be cut to the target width.'
+            'The character in the string has a width larger than '
+            'the target width, which cannot be cut to the target width.'
         )
     if not string:
         return [string]
@@ -1429,8 +1428,8 @@ def _rsplit(string, width):
         raise TypeError('Type of value of parameter <string> should be "str".')
     if width < _max_char_wid(string):
         raise ValueError(
-            'The character in the string has a width \
-larger than the target width, which cannot be cut to the target width.'
+            'The character in the string has a width larger than '
+            'the target width, which cannot be cut to the target width.'
         )
     if not string:
         return [string]
