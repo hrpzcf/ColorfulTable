@@ -796,20 +796,37 @@ class Table(list):
         self.writeCell(rowindex, colindex, value='')
 
     def isEmpty(self, rowindex=None, colindex=None):
+        '''
+        测试表格内容是否为空方法。
+            1.行索引 rowindex 和列索引 colindex 都不为 None，则测试对应的单元格；
+            2.行索引 rowindex 为 None，列索引 colindex 不为 None，则测试第 colindex 列整列，
+        反之亦然；
+            3.行索引 rowindex 和列索引 colindex 都为 None，则测试整个表格的所有单元格。
+        :param rowindex: int，单元格行索引
+        :param colindex: int，单元格列索引
+        :return: bool
+        '''
         self._check_index(rowindex, colindex)
+        # 如果行和列索引都为 None，则测试整个表格
         if rowindex is None and colindex is None:
             return not any(
                 any(bool(row[colind]) for colind in range(len(row))) for row in self
             )
+        # 行和列索引其中之一为 None，则测试证列或整行
         elif rowindex is None or colindex is None:
             if rowindex is None:
                 return not any(bool(row[colindex]) for row in self)
             else:
                 return not any(self[rowindex])
+        # 都不为 None 则测试对应单元格
         else:
             return not bool(self[rowindex][colindex])
 
     def isFull(self, rowindex=None, colindex=None):
+        '''
+        测试表格内容是否全部非空方法。
+        索引参数使用方法与 isEmpty 方法相同。
+        '''
         self._check_index(rowindex, colindex)
         if rowindex is None and colindex is None:
             return all(
@@ -828,9 +845,10 @@ class Table(list):
         Table 实例对象的删除列方法。
             1.根据列的索引值 colindex 删除对应的列；
             2.将所删除的列以一维列表形式返回。
-        :param colindex: int, 要删除的列的索引值。
-        :return: list, 以列表形式返回已删除的列。
+        :param colindex: int, 要删除的列的索引值
+        :return: list, 以列表形式返回已删除的列
         '''
+        # 检查输入参数类型等是否符号要求
         if not isinstance(colindex, int):
             raise TypeError(
                 'Integer parameter <colindex> expected, got %s.'
@@ -841,7 +859,9 @@ class Table(list):
         columnlist = list()
         for row in self:
             columnlist.append(row._delcol(colindex))
+        # 列计数 -1
         self._num_cols -= 1
+        # 相应的列固定宽度列表、列宽上限列表、列宽下限列表也要删除相应列宽度数据
         del self._col_fixeds[colindex]
         del self._col_caps[colindex]
         del self._col_floors[colindex]
@@ -855,6 +875,7 @@ class Table(list):
         :param rowindex: int, 要删除的行的索引值。
         :return: list, 以列表形式返回已删除的行。
         '''
+        # 检查输入参数类型等是否符号要求
         if not isinstance(rowindex, int):
             raise TypeError(
                 'Integer parameter <rowindex> expected, got %s.'
@@ -862,8 +883,11 @@ class Table(list):
             )
         if -self._num_rows > rowindex >= self._num_rows:
             raise IndexError('Row index out of range.')
+        # 调用 Table 实例(列表)的 pop 方法删除指定行，得到被删除行的返回值
         rowlist = list(self.pop(rowindex))
+        # 行计数 -1
         self._num_rows -= 1
+        # 调用 Table 实例的 _find_cap、_find_floor 方法更新所有列的宽度上、下限数据
         for colindex in range(self._num_cols):
             self._col_caps[colindex] = self._find_cap(colindex)
             self._col_floors[colindex] = self._find_floor(colindex)
