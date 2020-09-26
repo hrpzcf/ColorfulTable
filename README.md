@@ -224,7 +224,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   getColumn(colindex)
+   getColumn(colindex=-1)
    ```
    
    - colindex 为索引参数，表示要获取的列的位置。
@@ -266,7 +266,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   getRow(rowindex)
+   getRow(rowindex=-1)
    ```
    
    - rowindex 为索引参数，表示要获取的行的位置。
@@ -308,7 +308,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   getItem(rowindex, colindex)
+   getItem(rowindex=-1, colindex=-1)
    ````
    
    - rowindex 为索引参数，表示行索引。
@@ -373,7 +373,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   writeCell(rowindex, colindex, *, value)
+   writeCell(rowindex=None, colindex=None, *, value)
    ```
    
    - rowindex 为索引参数，表示行索引。
@@ -421,7 +421,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   clearCell(rowindex, colindex)
+   clearCell(rowindex=None, colindex=None)
    ```
    
    - 调用方法大致与 writeCell 方法相同，只是没有 value 参数。
@@ -437,7 +437,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     > 方法原型
     
     ```python
-    isEmpty(rowindex, colindex)
+    isEmpty(rowindex=None, colindex=None)
     ```
     
     - 索引参数使用方法与 writeCell 方法相同。
@@ -454,7 +454,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     > 方法原型
     
     ```python
-    isFull(rowindex, colindex)
+    isFull(rowindex=None, colindex=None)
     ```
     
     - 索引参数使用方法与 writeCell 方法大致相同。
