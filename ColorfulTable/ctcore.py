@@ -856,16 +856,14 @@ class Table(list):
             )
         if -self._num_cols > colindex >= self._num_cols:
             raise IndexError('Column index out of range.')
-        columnlist = list()
-        for row in self:
-            columnlist.append(row._delcol(colindex))
         # 列计数 -1
         self._num_cols -= 1
         # 相应的列固定宽度列表、列宽上限列表、列宽下限列表也要删除相应列宽度数据
         del self._col_fixeds[colindex]
         del self._col_caps[colindex]
         del self._col_floors[colindex]
-        return columnlist
+        # 列表推导式中调用 _RowObj 类(行)实例的 _delcol 方法并将新列表(删除的列)返回
+        return [row._delcol(colindex) for row in self]
 
     def delRow(self, rowindex):
         '''
