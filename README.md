@@ -431,7 +431,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
 
 
 
-10. #### 测试单元格是否为空方法 -  isEmpty
+10. #### 测试表格内容是否为空方法 -  isEmpty
     
     ---
     
@@ -448,7 +448,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
 
 
 
-11. #### 测试单元格是否全部非空方法 - isFull
+11. #### 测试表格内容是否全部非空方法 - isFull
     
     ---
     
@@ -458,7 +458,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     isFull(rowindex=None, colindex=None)
     ```
     
-    - 索引参数使用方法与 writeCell 方法大致相同。
+    - 索引参数使用方法与 writeCell 方法相同。
 
 
 
