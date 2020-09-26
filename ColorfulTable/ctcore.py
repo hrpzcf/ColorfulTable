@@ -410,7 +410,7 @@ class _RowObj(list):
         但只包含单元格里的一部分(一个单元格里几个小行中的一个)，
         就如 _gettext 方法中对本方法返回值的示意图所示。
 
-        :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边框线。
+        :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边框线
         :return: list[list[str]]，已格式化的"表格行"的二维列表形式，如下：
             假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
             假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m。
@@ -458,21 +458,21 @@ class Table(list):
         '''
         初始化方法。
         :param header: Iterable，可迭代对象，初始化表格时的表格首行，其实与普通行并无区别，
-        删除首行后第二行变首行。
+        删除首行后第二行变首行
         :param alignh: str，水平对齐方式，单元格未指定水平对齐方式时默认使用该对齐方式，
-        可用值见 __ALIGNH__ 全局变量值，参数默认值为 l。
+        可用值见 __ALIGNH__ 全局变量值，参数默认值为 l
         :param alignv: str，垂直对齐方式，单元格未指定垂直对齐方式时默认使用该对齐方式，
-        可用值见 __ALIGNV__ 全局变量值，参数默认值为 t。
+        可用值见 __ALIGNV__ 全局变量值，参数默认值为 t
         :param rowfixed: int，行高，新添加的行默认使用的行高值，可用值为 0 或
-        小于 MAX_ROW_HEIGHT 的整数，参数默认值为 0。
+        小于 MAX_ROW_HEIGHT 的整数，参数默认值为 0
         :param colfixed: int，列宽，新添加的行、列默认使用的列宽值，可用值为 0 或
-        小于 MAX_COLUMN_WIDTH 的整数，参数默认值为 0。
+        小于 MAX_COLUMN_WIDTH 的整数，参数默认值为 0
         :param fbgc: set[str]，包含可用代表颜色的字符串的集合，新增的单元格默认使用该前背景色，
         参数默认值为空集合，可用的颜色代表字符为同目录下 colors 模块中 _ColorGroup 类的属性名
-        的字符串形式(或见 README.md 文件)。
+        的字符串形式(或见 README.md 文件)
         :param fill: any，任意数据类型，当添加行或列时，添加的行或列长度短于表格现有列数或行数
-        时，默认使用 fill 来补足长度，参数默认值为空字符串。
-        :param style: 数据类型应为 Style 实例，Style 类包含所需的各种边框线。
+        时，默认使用 fill 来补足长度，参数默认值为空字符串
+        :param style: 数据类型应为 Style 实例，Style 类包含所需的各种边框线
         '''
         # 检查参数是否符合要求
         Table._check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style)
@@ -574,9 +574,9 @@ class Table(list):
 
     def _check_index(self, rowindex=None, colindex=None):
         '''
-        检查行列索引值是否是整数及是否超出范围方法(索引值为 None 不检查)。
-        :param rowindex: int，要检查的行索引值。
-        :param colindex: int，要检查的列索引值。
+        检查行列索引值是否是整数及是否超出范围方法(索引值为 None 不检查)
+        :param rowindex: int，要检查的行索引值
+        :param colindex: int，要检查的列索引值
         '''
         if rowindex is not None:
             if not isinstance(rowindex, int):
@@ -592,12 +592,12 @@ class Table(list):
     def __str__(self):
         '''
         重写 __str__ 魔法方法，使打印本类实例时以表格形式输出，而不是对象内存地址。
-        :return: str，已构建完成的整个表格的字符串形式。
+        :return: str，已构建完成的整个表格的字符串形式
         '''
         self._text_refresh()
         return self._text()
 
-    # 将 __repr__ 魔法方法指向 __str__ 方法，交互模式输出时用 __str__ 代理。
+    # 将 __repr__ 魔法方法指向 __str__ 方法，输出时用 __str__ 代理。
     __repr__ = __str__
 
     def addColumn(self, colindex, column=None):
@@ -605,13 +605,13 @@ class Table(list):
         Table 实例对象的插入列方法。
             1.要插入的列的行数比现有行数多则截断，比现有行数少则用空字符补足；
             2.可不带索引参数 colindex，默认把列插入到所有列末尾。
-        :param colindex: int, 插入位置索引。
-        :param column: Iterable, 要插入的列。
+        :param colindex: int, 插入位置索引
+        :param column: Iterable, 要插入的列
         '''
         # 如果要插入的列 column 值是 None (column 参数默认值是 None)，
         # 则说明 addColumn 方法只接收到一个参数 colindex，而我们规定接收到的参数
-        # 默认是要插入的列，所以要交换一下参数值，colindex 值给 column，column 的值赋值为
-        # self._num_cols，按 self._num_cols 值插入就是最后一列。
+        # 默认是要插入的列，所以要交换一下参数值，colindex 值给 column，column 的值赋值
+        # 为 self._num_cols，按 self._num_cols 值插入就是最后一列
         if column is None:
             column, colindex = colindex, self._num_cols
         # 再检查参数类型是否符号要求，不符合则抛出异常
@@ -662,8 +662,8 @@ class Table(list):
         Table 实例的插入行方法。
             1.要插入的行的列数比现有列数多则截断，比现有列数少则用 filler 补足；
             2.可不带索引参数 rowindex，默认把行插入到所有行末尾。
-        :param rowindex: int, 插入位置索引。
-        :param row: Iterable, 要插入的行。
+        :param rowindex: int, 插入位置索引
+        :param row: Iterable, 要插入的行
         '''
         # 同插入列方法 addColumn
         if row is None:
@@ -706,37 +706,68 @@ class Table(list):
             self._col_floors[colind] = self._find_floor(colind)
 
     def getColumn(self, colindex=-1):
+        '''
+        获取列源数据方法。
+        :param colindex: int，要获取的列的索引
+        :return: list[any...]，要获取的列的列表形式
+        '''
         self._check_index(colindex=colindex)
         if colindex is None:
             return
         return [row[colindex] for row in self]
 
     def getRow(self, rowindex=-1):
+        '''
+        获取行元数据方法。
+        :param rowindex: int，要获取的行的索引
+        :return: list[any...]，要获取的行的列表形式
+        '''
         self._check_index(rowindex)
         if rowindex is None:
             return
         return list(self[rowindex])
 
     def getItem(self, rowindex=-1, colindex=-1):
+        '''
+        获取单元格源数据方法。
+        :param rowindex: int，单元格行索引
+        :param colindex: int，单元格列索引
+        :return: any，获取的单元个源数据
+        '''
         self._check_index(rowindex, colindex)
         if rowindex is None or colindex is None:
             return
         return self[rowindex][colindex]
 
     def getString(self, rowindex=-1, colindex=-1):
+        '''
+        获取单元格源数据的字符串形式。
+        :param rowindex: int，单元格行索引
+        :param colindex: int，单元格列索引
+        :return: str，获取的单元个源数据的字符串形式
+        '''
         self._check_index(rowindex, colindex)
         if rowindex is None or colindex is None:
             return
         return str(self[rowindex][colindex])
 
     def writeCell(self, rowindex=None, colindex=None, *, value):
+        '''
+        覆写单元格方法。
+        :param rowindex: int，单元格行索引
+        :param colindex: int，单元格列索引
+        :param value: any，要写入的值，可以是任何受支持的类型
+        :return: None
+        '''
         self._check_index(rowindex, colindex)
+        # 如果行索引和列索引都为 None 则覆写所有单元格
         if rowindex is None and colindex is None:
             for row in self:
                 for colind in range(len(row)):
                     row[colind] = value
                     self._col_caps[colind] = self._find_cap(colind)
                     self._col_floors[colind] = self._find_floor(colind)
+        # 如果行索引、列索引其中之一为 None，则覆写整列或整行
         elif rowindex is None or colindex is None:
             if rowindex is None:
                 for row in self:
@@ -748,12 +779,20 @@ class Table(list):
                     self[rowindex][colind] = value
                     self._col_caps[colind] = self._find_cap(colind)
                     self._col_floors[colind] = self._find_floor(colind)
+        # 都不为 None 则只覆写指定坐标的单元格
         else:
             self[rowindex][colindex] = value
             self._col_caps[colindex] = self._find_cap(colindex)
             self._col_floors[colindex] = self._find_floor(colindex)
 
     def clearCell(self, rowindex=None, colindex=None):
+        '''
+        清除单元格内容方法。
+        :param rowindex: int，单元格行索引
+        :param colindex: int，单元格列索引
+        :return: None
+        '''
+        # 用 writeCell 方法代理，写入空字符串
         self.writeCell(rowindex, colindex, value='')
 
     def isEmpty(self, rowindex=None, colindex=None):
