@@ -665,7 +665,7 @@ class Table(list):
         :param rowindex: int, 插入位置索引。
         :param row: Iterable, 要插入的行。
         '''
-        # 同上面的插入列方法 addColumn
+        # 同插入列方法 addColumn
         if row is None:
             row, rowindex = rowindex, self._num_rows
         if not isinstance(rowindex, int):
@@ -680,10 +680,13 @@ class Table(list):
         # 如果row是生成器、迭代器，要转换为列表好进行索引操作
         row_list = list(row)
         len_row = len(row_list)
+        # 要添加的行的元素数量比现有表格列数多，则截断要添加的行使其长度与现有表格列数一致
         if len_row > self._num_cols:
             row_list = row_list[: self._num_cols]
+        # 如果要添加的行的元素数量比现有表格的列数少，则用 fill 扩充要添加的行列表
         elif len_row < self._num_cols:
             row_list.extend([self._filler] * (self._num_cols - len_row))
+        # 以要添加的行列表等为初始参数，实例化行类 _RowObj
         row_list = _RowObj(
             row_list,
             self._col_wids,
@@ -692,8 +695,12 @@ class Table(list):
             self._alignv,
             self._fbgcolors,
         )
+        # 将行类 _RowObj 实例添加进现有表格实例(self)相应位置
         self.insert(rowindex, row_list)
+        # 行数计数加 1
         self._num_rows += 1
+        # 分别调用行 _RowObj 实例 _find_cap、_find_floor 方法
+        # 重新查找每列的字符宽度上限、下限，并分别更新列宽度上、下限列表
         for colind in range(self._num_cols):
             self._col_caps[colind] = self._find_cap(colind)
             self._col_floors[colind] = self._find_floor(colind)
@@ -763,7 +770,7 @@ class Table(list):
         else:
             return not bool(self[rowindex][colindex])
 
-    def isFull(self, rowindex, colindex):
+    def isFull(self, rowindex=None, colindex=None):
         self._check_index(rowindex, colindex)
         if rowindex is None and colindex is None:
             return all(
