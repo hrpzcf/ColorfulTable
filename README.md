@@ -314,6 +314,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    - rowindex 为索引参数，表示行索引。
    - colindex 为索引参数，表示列索引。
    - 可以不带 rowindex 、colindex 参数之一或全部，不带的参数默认为 -1（最后一行或列）。
+   - 如果不带 rowindex，则 colindex 需要以关键字参数方式指定。
    
      
    
