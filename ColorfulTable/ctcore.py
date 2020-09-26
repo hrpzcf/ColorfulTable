@@ -799,8 +799,7 @@ class Table(list):
         '''
         测试表格内容是否为空方法。
             1.行索引 rowindex 和列索引 colindex 都不为 None，则测试对应的单元格；
-            2.行索引 rowindex 为 None，列索引 colindex 不为 None，则测试第 colindex 列整列，
-        反之亦然；
+            2.行索引 rowindex 为 None，列索引 colindex 不为 None，则测试第 colindex 列整列，反之亦然；
             3.行索引 rowindex 和列索引 colindex 都为 None，则测试整个表格的所有单元格。
         :param rowindex: int，单元格行索引
         :param colindex: int，单元格列索引
@@ -893,14 +892,19 @@ class Table(list):
 
     def setColumnWidth(self, colindex, width=None):
         '''
-        Table 实例对象的设置列宽方法。
-            不带列索引参数 colindex，则设置所有列的宽度。
-        :param colindex: int, 要设置宽度的列索引。
-        :param width: int, 要设置的列宽度。
-        :return: None: 无返回值。
+        Table 实例对象的设置列的固定列宽方法。
+            1.不带列索引参数 colindex，则设置所有列的宽度；
+            2.不需要固定列宽则将列宽设置为 0 即可自适应列宽。
+        :param colindex: int, 要设置宽度的列索引
+        :param width: int, 要设置的列宽度
+        :return: None
         '''
+        # 如果 width 参数值为 None，可能只传进一个参数 colindex
+        # 因为规定可以不带 colindex 参数，传进的一个参数默认为 width，所以需要将 colindex 的
+        # 值交换给 width，colindex 赋值为 None
         if width is None:
             width, colindex = colindex, None
+        # 检查参数类型等是否符合要求
         if not (isinstance(colindex, int) or colindex is None):
             raise TypeError(
                 'Integer parameter <colindex> or "None" expected, got %s.'
@@ -919,19 +923,23 @@ class Table(list):
                 'please modify the value of "MAX_COLUMN_WIDTH" if necessary.'
                 % MAX_COLUMN_WIDTH
             )
+        # 如果 colindex 为 None，则以 width 为列宽值重新生成一个固定列宽列表
         if colindex is None:
             self._col_fixeds = [width for _ in self._col_fixeds]
             return
+        # 不为 None 则修改固定列宽列表中指定列的列宽值
         self._col_fixeds[colindex] = width
 
     def setRowHeight(self, rowindex, height=None):
         '''
-        Table 实例对象的设置行高方法。
-            不带行索引参数 rowindex，则设置所有行的高度。
+        Table 实例对象的设置固定行高方法。
+            1.不带行索引参数 rowindex，则设置所有行的高度；
+            2.不需要固定行高则将行高设置为 0 即可自适应行高。
         :param rowindex: int, 要设置高度的行索引。
         :param height: int, 要设置的行高度。
         :return: None: 无返回值。
         '''
+        # 同 setColumnWidth 方法，不再重复注释了
         if height is None:
             height, rowindex = rowindex, None
         if not (isinstance(rowindex, int) or rowindex is None):
@@ -953,12 +961,29 @@ class Table(list):
                 % MAX_ROW_HEIGHT
             )
         if rowindex is None:
+            # 调用 _RowObj （行）实例的 _height 方法设置行高
+            # 因为行高属性是 _RowObj 实例属性
+            # （这点做的不好，列宽是 Table 实例属性，行高是 _RowObj 实例属性，不统一）
             for row in self:
                 row._height(height)
             return
         self[rowindex]._height(height)
 
     def setAlignment(self, rowindex=None, colindex=None, *, alignh=None, alignv=None):
+        '''
+        Table 类实例的设置对齐方式方法。
+            1.行索引 rowindex 和列索引 colindex 参数可以自由省略或写 None；
+            2.行索引 rowindex 为 None，列索引 colindex 不为 None，则表示整列，反之亦然；
+            3.水平对齐方式 alignh 和垂直对齐方式 alignv 可自由省略，省略或为 None 则表示不设置该对齐方式；
+            4.如需设置对齐方式，则对齐方式 alignh 或 alignv 需以关键字参数形式调用。
+            5.alignh 和 alignv 的可用值分别为 'l','left','c','center','r','right' 和 't','top','m','middle','b','bottom'
+        :param rowindex: int，行索引
+        :param colindex: int，列索引
+        :param alignh: str，水平对齐方式
+        :param alignv: str，垂直对齐方式
+        :return: None
+        '''
+        # 检查参数是否符合要求，不符合则抛出异常
         if not (isinstance(rowindex, int) or rowindex is None):
             raise TypeError(
                 'Integer parameter <rowindex> or "None" expected, got %s.'
@@ -979,11 +1004,14 @@ class Table(list):
                 'No vertical alignment option like <%s>, available: %s.'
                 % (alignv, __ALIGNV__)
             )
+        # 如果行和列索引都为 None，则设置整个表格所有单元格的对齐方式
         if rowindex is not None and colindex is not None:
+            # 行或列索引超出范围则抛出异常，以下同理
             if -self._num_rows > rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
             if -self._num_cols > colindex >= self._num_cols:
                 raise IndexError('Column index out of range.')
+            # 调用 _RowObj（行）实例的 _align 方法设置对齐方式，以下同理
             self[rowindex]._align(colindex, alignh, alignv)
         elif rowindex is None and colindex is None:
             for rowind in range(self._num_rows):
@@ -1002,6 +1030,15 @@ class Table(list):
                     row._align(colindex, alignh, alignv)
 
     def setColor(self, rowindex=None, colindex=None, *, clrs=None):
+        '''
+        Table 类实例的设置颜色方法。
+            1.设置颜色前会清空单元格原颜色集合；
+            2.颜色代码(字符串)的可用值见 README.md 中的颜色代码表格。
+        :param rowindex:  int，行索引
+        :param colindex:  int，列索引
+        :param clrs: list|tuple|set[str...]，颜色代码(字符串)集合
+        :return: None
+        '''
         if not (isinstance(rowindex, int) or rowindex is None):
             raise TypeError(
                 'Integer parameter <rowindex> or "None" expected, got %s.'
@@ -1020,6 +1057,7 @@ class Table(list):
             raise ValueError(
                 'The type of the color name in the collection can only be "str".'
             )
+        # 调用 _RowObj 实例的 _setclr 方法设置单元格颜色
         if rowindex is not None and colindex is not None:
             if -self._num_rows > rowindex >= self._num_rows:
                 raise IndexError('Row index out of range.')
