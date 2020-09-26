@@ -763,7 +763,7 @@ class Table(list):
         # 如果行索引和列索引都为 None 则覆写所有单元格
         if rowindex is None and colindex is None:
             for row in self:
-                for colind in range(len(row)):
+                for colind in range(self._num_cols):
                     row[colind] = value
                     self._col_caps[colind] = self._find_cap(colind)
                     self._col_floors[colind] = self._find_floor(colind)
@@ -775,7 +775,7 @@ class Table(list):
                 self._col_caps[colindex] = self._find_cap(colindex)
                 self._col_floors[colindex] = self._find_floor(colindex)
             else:
-                for colind in range(len(self[rowindex])):
+                for colind in range(self._num_cols):
                     self[rowindex][colind] = value
                     self._col_caps[colind] = self._find_cap(colind)
                     self._col_floors[colind] = self._find_floor(colind)
