@@ -26,13 +26,13 @@ from os import name as os_name
 from sys import stdout as sys_stdout
 
 # 终端中用于控制颜色的字符
-# 详见：https://en.wikipedia.org/wiki/ANSI_escape_code（包括数字颜色码）
+# 详见：https://en.wikipedia.org/wiki/ANSI_escape_code（包括数字颜色代码）
 _CSI_S = ';'
 _CSI_H = '\033['
 _CSI_T = 'm'
 
 # 程序运行于 IDLE 上的标志
-# 关心是否运行于 IDLE Shell 上是因为 IDLE 不支持字符颜色，需要区别对待
+# 关心是否运行于 IDLE Shell 上是因为 IDLE 不支持前背景色，需要区别对待
 run_on_idle = False
 # 导入 IDLE 相关模块成功标志
 _idle_imported = False
@@ -72,7 +72,8 @@ if _NT and not run_on_idle:
         from warnings import warn
 
         warn(
-            'If you want to print in color on the windows console, please use "pip3 install colorama" to install the "colorama" module.'
+            'If you want to print in color on the windows console, '
+            'please use "pip3 install colorama" to install the "colorama" module.'
         )
 
 
@@ -85,7 +86,7 @@ class MixedColors(object):
     def __init__(self, *codes):
         '''
         初始化
-        :param codes: list，数字颜色码列表
+        :param codes: list，数字颜色代码列表
         '''
         self.codes = list()
         self.codes.extend(codes)
@@ -104,7 +105,7 @@ class MixedColors(object):
             if not self.codes:
                 # 颜色代码列表为空则返回原字符串（不修改原字符串）
                 return other
-            # 生成以分号分割的数字颜色码
+            # 生成以分号分割的数字颜色代码
             string = _CSI_S.join(str(c) for c in self.codes)
             # 生成设置颜色码，比如 \033[31;42m
             setter = ''.join((_CSI_H, string, _CSI_T))
@@ -113,7 +114,7 @@ class MixedColors(object):
             # 返回 设置颜色码 + 字符串 + 重置颜色码 形式的字符串
             return ''.join((setter, other, resetter))
         elif isinstance(other, Monochrome):
-            # 如果加号右边是单色类 Monochrome 实例，则将其数字颜色码
+            # 如果加号右边是单色类 Monochrome 实例，则将其数字颜色代码
             # 添加至"混合色 MixedColors"类实例的颜色码列表，返回混合色实例自身
             self.codes.append(other.code)
             return self
@@ -144,7 +145,7 @@ class Monochrome(object):
     def __init__(self, code):
         '''
         类初始化方法
-        :param code: int，数字颜色码
+        :param code: int，数字颜色代码
         '''
         self.code = code
 
@@ -217,7 +218,7 @@ class _ColorGroup(object):
         bg_brightcyan = Back.LIGHTCYAN_EX
         bg_brightwhite = Back.LIGHTWHITE_EX
     else:
-        # 运行于其他平台则用数字颜色码来构建颜色
+        # 运行于其他平台则用数字颜色代码来构建颜色
         fg_reset = 0
         fg_red = 31
         fg_green = 32

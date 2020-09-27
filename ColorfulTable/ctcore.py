@@ -1081,14 +1081,33 @@ class Table(list):
                     row._setclr(colindex, clrs)
 
     def getColor(self, rowindex, colindex):
+        '''
+        Table 实例的获取单元格颜色集合方法。
+        该方法会返回单元格的颜色代码（字符串）集合，当不想用 setColor 方法（会先清空指定单元格
+        的所有颜色设置，再设置指定颜色）时，可以调用 getColor 方法取得单元格的颜色集合，再用集
+        合方法对该集合内元素（颜色代码）进行增删操作，即可修改该单元格的前背景色。
+        当然，该方法不限于以上用法。
+        :param rowindex:  int，列索引
+        :param colindex:  int，列索引
+        :return: set[str...]，指定单元格的颜色集合
+        '''
         self._check_index(rowindex, colindex)
+        # 调用 _RowObj（行）实例的 _getclr 方法获取单元格颜色集合
         return self[rowindex]._getclr(colindex)
 
     def defaultClr(self, *values):
+        '''
+        Table 实例的设置默认前背景色方法。
+        当单元格未设置前背景色时，将使用本方法设置的前背景色。
+        :param values: str，接受不定长参数，参数应为可用的颜色代码（字符串）
+        :return: None
+        '''
+        # 检查参数值是否符合要求
         if not all(isinstance(s, str) for s in values):
             raise TypeError(
                 'The type of the color name in the collection can only be "str".'
             )
+        # 检查 values 所有值是否符合要求（是否能取到 _color 属性）
         for string in values:
             getattr(_colors, string)
         self._fbgcolors = set(values)
