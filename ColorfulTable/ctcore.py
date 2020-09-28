@@ -444,16 +444,16 @@ class Table(list):
     '''
 
     def __init__(
-        self,
-        header,
-        *,
-        alignh='l',
-        alignv='t',
-        rowfixed=0,
-        colfixed=0,
-        fbgc=None,
-        fill='',
-        style=None
+            self,
+            header,
+            *,
+            alignh='l',
+            alignv='t',
+            rowfixed=0,
+            colfixed=0,
+            fbgc=None,
+            fill='',
+            style=None
     ):
         '''
         初始化方法。
@@ -841,7 +841,7 @@ class Table(list):
 
     def delColumn(self, colindex):
         '''
-        Table 实例对象的删除列方法。
+        Table 类实例对象的删除列方法。
             1.根据列的索引值 colindex 删除对应的列；
             2.将所删除的列以一维列表形式返回。
         :param colindex: int, 要删除的列的索引值
@@ -866,7 +866,7 @@ class Table(list):
 
     def delRow(self, rowindex):
         '''
-        Table 实例对象的删除行方法。
+        Table 类实例对象的删除行方法。
             1.根据列的索引值 rowindex 删除对应的行；
             2.将所删除的行以一维列表形式返回。
         :param rowindex: int, 要删除的行的索引值。
@@ -892,7 +892,7 @@ class Table(list):
 
     def setColumnWidth(self, colindex, width=None):
         '''
-        Table 实例对象的设置列的固定列宽方法。
+        Table 类实例对象的设置列的固定列宽方法。
             1.不带列索引参数 colindex，则设置所有列的宽度；
             2.不需要固定列宽则将列宽设置为 0 即可自适应列宽。
         :param colindex: int, 要设置宽度的列索引
@@ -932,7 +932,7 @@ class Table(list):
 
     def setRowHeight(self, rowindex, height=None):
         '''
-        Table 实例对象的设置固定行高方法。
+        Table 类实例对象的设置固定行高方法。
             1.不带行索引参数 rowindex，则设置所有行的高度；
             2.不需要固定行高则将行高设置为 0 即可自适应行高。
         :param rowindex: int, 要设置高度的行索引。
@@ -974,9 +974,11 @@ class Table(list):
         Table 类实例的设置对齐方式方法。
             1.行索引 rowindex 和列索引 colindex 参数可以自由省略或写 None；
             2.行索引 rowindex 为 None，列索引 colindex 不为 None，则表示整列，反之亦然；
-            3.水平对齐方式 alignh 和垂直对齐方式 alignv 可自由省略，省略或为 None 则表示不设置该对齐方式；
+            3.水平对齐方式 alignh 和垂直对齐方式 alignv 可自由省略，省略或为 None 则表示不
+            设置该对齐方式；
             4.如需设置对齐方式，则对齐方式 alignh 或 alignv 需以关键字参数形式调用。
-            5.alignh 和 alignv 的可用值分别为 'l','left','c','center','r','right' 和 't','top','m','middle','b','bottom'
+            5.alignh 和 alignv 的可用值分别为 'l','left','c','center','r','right'
+            和 't','top','m','middle','b','bottom'。
         :param rowindex: int，行索引
         :param colindex: int，列索引
         :param alignh: str，水平对齐方式
@@ -1082,7 +1084,7 @@ class Table(list):
 
     def getColor(self, rowindex, colindex):
         '''
-        Table 实例的获取单元格颜色集合方法。
+        Table 类实例的获取单元格颜色集合方法。
         该方法会返回单元格的颜色代码（字符串）集合，当不想用 setColor 方法（会先清空指定单元格
         的所有颜色设置，再设置指定颜色）时，可以调用 getColor 方法取得单元格的颜色集合，再用集
         合方法对该集合内元素（颜色代码）进行增删操作，即可修改该单元格的前背景色。
@@ -1097,7 +1099,8 @@ class Table(list):
 
     def defaultClr(self, *values):
         '''
-        Table 实例的设置默认前背景色方法。
+        Table 类实例的设置默认前背景色方法。
+        本方法与创建 Table 类实例时的初始化参数 fbgc 修改的是同一个属性值。
         当单元格未设置前背景色时，将使用本方法设置的前背景色。
         :param values: str，接受不定长参数，参数应为可用的颜色代码（字符串）
         :return: None
@@ -1107,12 +1110,21 @@ class Table(list):
             raise TypeError(
                 'The type of the color name in the collection can only be "str".'
             )
-        # 检查 values 所有值是否符合要求（是否能取到 _color 属性）
+        # 检查 values 所有值是否符合要求
+        # （是否能取到 _color 属性，即 colors 模块中的 _ColorGroup 类实例）
         for string in values:
             getattr(_colors, string)
         self._fbgcolors = set(values)
 
     def defaultAlign(self, *, alignh=None, alignv=None):
+        '''
+        Table 类实例的设置默认对齐方式（水平和垂直）方法。
+        本方法与创建 Table 类实例时的初始化参数 alignh、alignv 修改的分别是同一个属性值。
+        当单元格未设置水平、垂直对齐方式时，将使用本方法设置的对齐方式。
+        :param alignh: str，可用的对齐方式字符串（'l','left','c','center','r','right'）
+        :param alignv: str，可用的对齐方式字符串（'t','top','m','middle','b','bottom'）
+        :return: None
+        '''
         if alignh not in __ALIGNH__.split() and alignh is not None:
             raise ValueError(
                 'No horizontal alignment option like <%s>, available: %s.'
@@ -1123,17 +1135,31 @@ class Table(list):
                 'No vertical alignment option like <%s>, available: %s.'
                 % (alignv, __ALIGNV__)
             )
+        # 如果 alignh、alignv 不为 None，则将 _RowObj 类实例的 _alignh、_alignv 属
+        # 性值分别设置为 alignh、alignv
         if alignh:
             self._alignh = alignh
         if alignv:
             self._alignv = alignv
 
     def setStyle(self, style):
+        '''
+        Table 类实例的设置表格边框线风格方法。
+        :param style: Style，Style 类实例
+        :return: None
+        '''
         if not isinstance(style, Style):
-            raise TypeError('Type of parameter <style> should be a "Style" object.')
+            raise TypeError('Parameter <style> should be an instance of class "Style".')
         self._style = style
 
     def defaultFill(self, fill=''):
+        '''
+        Table 类实例的设置默认填充对象方法。
+        本方法与创建 Table 类实例时的初始化参数 fill 修改的是同一个属性值。
+        :param fill: any，通过 addColumn、addRow 方法添加行列时，要添加的行、列不够
+        现有表格行、列长时，使用 fill 填充。
+        :return: None
+        '''
         self._filler = fill
 
     @staticmethod
@@ -1153,14 +1179,14 @@ class Table(list):
             MAX_ROW_HEIGHT = value
 
     def show(
-        self,
-        start=0,
-        stop=None,
-        *,
-        colorful=True,
-        header=True,
-        file=sys.stdout,
-        refresh=True
+            self,
+            start=0,
+            stop=None,
+            *,
+            colorful=True,
+            header=True,
+            file=sys.stdout,
+            refresh=True
     ):
         if not isinstance(start, int):
             raise TypeError('Type of parameter <start> should be "int".')
@@ -1562,13 +1588,13 @@ def _lsplit(string, width):
     while stop <= lenstr:
         strwid = _str_wid(string[start:stop])
         if strwid > width:
-            substrings.append(string[start : stop - 1])
+            substrings.append(string[start: stop - 1])
             start = stop - 1
         elif strwid == width:
             substrings.append(string[start:stop])
             start, stop = stop, stop + 1
         elif string[stop - 1] == _LNSEP or string[stop - 1] == '\n':
-            substrings.append(string[start : stop - 1])
+            substrings.append(string[start: stop - 1])
             start = stop
             stop += 1
         else:
@@ -1596,10 +1622,10 @@ def _rsplit(string, width):
             substrings.insert(0, string[start:stop])
             start, stop = start - 1, start
         elif strwid > width:
-            substrings.insert(0, string[start + 1 : stop])
+            substrings.insert(0, string[start + 1: stop])
             stop = start + 1
         elif string[start] == '\n' or string[start] == _LNSEP:
-            substrings.insert(0, string[start + 1 : stop])
+            substrings.insert(0, string[start + 1: stop])
             stop = start
             start -= 1
         else:
@@ -1607,7 +1633,6 @@ def _rsplit(string, width):
     if stop > 0:
         substrings.insert(0, string[:stop])
     return substrings
-
 
 # TODO BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，
 #  对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
