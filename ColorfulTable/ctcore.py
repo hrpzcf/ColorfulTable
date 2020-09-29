@@ -444,16 +444,16 @@ class Table(list):
     '''
 
     def __init__(
-            self,
-            header,
-            *,
-            alignh='l',
-            alignv='t',
-            rowfixed=0,
-            colfixed=0,
-            fbgc=None,
-            fill='',
-            style=None
+        self,
+        header,
+        *,
+        alignh='l',
+        alignv='t',
+        rowfixed=0,
+        colfixed=0,
+        fbgc=None,
+        fill='',
+        style=None
     ):
         '''
         初始化方法。
@@ -1164,29 +1164,30 @@ class Table(list):
 
     @staticmethod
     def limit(item, value):
-        global MAX_COLUMN_NUM, MAX_COLUMN_WIDTH, MAX_ROW_HEIGHT
+        '''
+        Table 类实例的限制最大列数、列宽、行高方法。
+        :param item: str，可用值：'MAX_COLUMN_NUM'、'MAX_COLUMN_WIDTH'、'MAX_ROW_HEIGHT'。
+        :param value: int，可用值：1~300。
+        :return: None
+        '''
         if not isinstance(item, str):
             raise TypeError('The attribute "item" should be "str".')
         if not isinstance(value, int):
             raise TypeError('The limit value should be "int".')
         if value not in range(1, 301):
             raise ValueError('The limit value should be in range of 1 to 300.')
-        if item == 'MAX_COLUMN_NUM':
-            MAX_COLUMN_NUM = value
-        elif item == 'MAX_COLUMN_WIDTH':
-            MAX_COLUMN_WIDTH = value
-        elif item == 'MAX_ROW_HEIGHT':
-            MAX_ROW_HEIGHT = value
+        if item in ('MAX_COLUMN_NUM', 'MAX_COLUMN_WIDTH', 'MAX_ROW_HEIGHT'):
+            globals()[item] = value
 
     def show(
-            self,
-            start=0,
-            stop=None,
-            *,
-            colorful=True,
-            header=True,
-            file=sys.stdout,
-            refresh=True
+        self,
+        start=0,
+        stop=None,
+        *,
+        colorful=True,
+        header=True,
+        file=sys.stdout,
+        refresh=True
     ):
         if not isinstance(start, int):
             raise TypeError('Type of parameter <start> should be "int".')
@@ -1588,13 +1589,13 @@ def _lsplit(string, width):
     while stop <= lenstr:
         strwid = _str_wid(string[start:stop])
         if strwid > width:
-            substrings.append(string[start: stop - 1])
+            substrings.append(string[start : stop - 1])
             start = stop - 1
         elif strwid == width:
             substrings.append(string[start:stop])
             start, stop = stop, stop + 1
         elif string[stop - 1] == _LNSEP or string[stop - 1] == '\n':
-            substrings.append(string[start: stop - 1])
+            substrings.append(string[start : stop - 1])
             start = stop
             stop += 1
         else:
@@ -1622,10 +1623,10 @@ def _rsplit(string, width):
             substrings.insert(0, string[start:stop])
             start, stop = start - 1, start
         elif strwid > width:
-            substrings.insert(0, string[start + 1: stop])
+            substrings.insert(0, string[start + 1 : stop])
             stop = start + 1
         elif string[start] == '\n' or string[start] == _LNSEP:
-            substrings.insert(0, string[start + 1: stop])
+            substrings.insert(0, string[start + 1 : stop])
             stop = start
             start -= 1
         else:
@@ -1633,6 +1634,7 @@ def _rsplit(string, width):
     if stop > 0:
         substrings.insert(0, string[:stop])
     return substrings
+
 
 # TODO BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，
 #  对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
