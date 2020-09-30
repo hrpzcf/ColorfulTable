@@ -1219,9 +1219,10 @@ class Table(list):
         # 控制代码）
         if not colorful:
             _COLORFUL = False
-        # 如果 refresh 参数值为 True 或未生成过表格文本形式（not self，即储存表格文
-        # 本形式的列表 self 为空），则调用 _text_refresh 方法生成、刷新表格文本形式
-        if refresh or not self:
+        # 如果 refresh 参数值为 True 或未生成过表格文本形式（not self.rowTexts，即
+        # 储存表格文本形式的列表 self 为空），则调用 _text_refresh 方法生成、刷新表
+        # 格文本形式
+        if refresh or not self.rowTexts:
             self._text_refresh()
         if _NT and not run_on_idle and (file is sys.stdout):
             self._print_win(start, stop, header)
