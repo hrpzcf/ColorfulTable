@@ -478,8 +478,8 @@ class Table(list):
         Table._check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style)
         # 调用父类初始化方法，因为继承自 list，此时本类实例(self)就是一个列表
         super(Table, self).__init__()
-        # rowsText用于储存表格中"行"的字符串形式
-        self.rowsText = list()
+        # rowTexts用于储存表格中"行"的字符串形式
+        self.rowTexts = list()
         # 默认水平、垂直对齐方式
         self._alignh = alignh
         self._alignv = alignv
@@ -1189,15 +1189,38 @@ class Table(list):
         file=sys.stdout,
         refresh=True
     ):
+        '''
+        Table 类实例的输出表格方法。
+        :param start: int，要输出的起始行（不包括标题行），默认 0
+        :param stop: int，要输出的结束行（不包括标题行），默认 None（末尾）
+        :param colorful: bool，是否输出彩色表格，默认 True。当你不想输出彩色表格时，
+        或者你的终端不支持彩色输出时，又或者你要输出到文件（file参数设定为文件对象）
+        但不想携带那些杂乱的颜色代码时，这个参数会对你十分有用，你可将它设定为 False，
+        这时输出的表格将不携带任何颜色控制代码（如果你之前已有设置好的颜色，它不会被清
+        除，下次你仍可以将 colorful 参数设置为 True，以输出你之前设定好的彩色表格）
+        :param header: bool，是否输出标题行（严格来说是第一行），默认 True
+        :param file: TextIOWrapper，Python 文件对象（既可以是标准输出流，也可以是 
+        open 函数返回的 Python 文件对象等）
+        :param refresh: bool，是否刷新表格的文本形式（当表格 - Table 类实例调用过 
+        show 方法后，对表格进行增删等操作，再次调用 show 方法时，如果 refresh 参数为 
+        False，那么输出的表格文本将仍与上次输出一样，不会体现表格的增删等操作）
+        :return: None
+        '''
         if not isinstance(start, int):
             raise TypeError('Type of parameter <start> should be "int".')
         if not isinstance(stop, int) and stop is not None:
             raise TypeError('Type of parameter <stop> should be "int" or "None".')
         if not isinstance(file, (TextIOWrapper, StdOutputFile, StreamWrapper)):
             raise TypeError('Type of <file> is not Python file object.')
+        # 声名全局变量
         global _COLORFUL
+        # 如果参数 colorful 为 False 则将 全局变量 _COLORFUL 设置为 False
+        # （函数 _format_o 会根据 _COLORFUL 是否为 True 来决定是否给表格文本添加颜色
+        # 控制代码）
         if not colorful:
             _COLORFUL = False
+        # 如果 refresh 参数值为 True 或未生成过表格文本形式（not self，即储存表格文
+        # 本形式的列表 self 为空），则调用 _text_refresh 方法生成、刷新表格文本形式
         if refresh or not self:
             self._text_refresh()
         if _NT and not run_on_idle and (file is sys.stdout):
@@ -1296,9 +1319,9 @@ class Table(list):
         self._border['neck'] = neck
         self._border['belt'] = belt
         self._border['shoes'] = shoes
-        self.rowsText.clear()
+        self.rowTexts.clear()
         for row_obj in self:
-            self.rowsText.append(
+            self.rowTexts.append(
                 row_obj._gettext(
                     self._style.left_vert,
                     self._style.center_vert,
@@ -1316,11 +1339,11 @@ class Table(list):
             belt = ''.join((_LNSEP, belt, _LNSEP))
         else:
             belt = _LNSEP
-        body = belt.join(self.rowsText[1:][start:stop])
+        body = belt.join(self.rowTexts[1:][start:stop])
         if not header:
             group = (hat, body, shoes)
         else:
-            group = (hat, self.rowsText[0], neck, body, shoes)
+            group = (hat, self.rowTexts[0], neck, body, shoes)
         return _LNSEP.join(group)
 
     def _col_wids_refresh(self):
