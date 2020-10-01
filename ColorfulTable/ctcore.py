@@ -594,7 +594,7 @@ class Table(list):
         重写 __str__ 魔法方法，使打印本类实例时以表格形式输出，而不是对象内存地址。
         :return: str，已构建完成的整个表格的字符串形式
         '''
-        return self._text()
+        return self.getText()
 
     # 将 __repr__ 魔法方法指向 __str__ 方法，输出时用 __str__ 代理。
     __repr__ = __str__
@@ -1242,7 +1242,7 @@ class Table(list):
             pass
 
     def _out_overall(self, start, stop, header, file):
-        text = self._text(start, stop, header)
+        text = self.getText(start, stop, header)
         try:
             file.write(text)
             file.write(_LNSEP)
@@ -1339,7 +1339,7 @@ class Table(list):
                 )
             )
 
-    def _text(self, start=0, stop=None, header=True):
+    def getText(self, start=0, stop=None, header=True):
         self.refactorText()
         hat = self._border['hat']
         neck = self._border['neck']
