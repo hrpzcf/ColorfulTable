@@ -733,15 +733,14 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     > 方法原型
 
     ```python
-    show(start=0, stop=None, *, colorful=True, header=True, file=sys.stdout, refresh=True)
+    show(start=0, stop=None, *, color=True, header=True, file=sys.stdout)
     ```
 
     - start 和 stop 为要输出的表格的起始行和结束行（不包括标题行），数据类型应为整数。
-    - colorful 为是否要按设置的颜色将表格打印到终端上，值为 False 将按默认颜色打印（设置的颜色不会被清除，下次 colorful 为 True 时仍然可以按已经设置的颜色打印），数据类型应为布尔值。
+    - color 为是否要按设置的颜色将表格打印到终端上，值为 False 将按默认颜色打印（设置的颜色不会被清除，下次 color 为 True 时仍然可以按已经设置的颜色打印），数据类型应为布尔值。
     - header 为是否显示标题行，数据类型应为布尔值。
     - file 为 Python 文件对象，默认为标准输出流 sys.stdout。
-    - refresh 为是否刷新表格显示文本(Table 实例调用过 show 方法后，再对实例进行添加行列等操作，再次调用 show 方法时，如果参数 refresh 为 False，则表格文本不会更新，输出与上次一样)，参数默认为 True。
-    - 以上参数可以自由选择调用，也可以全部使用默认；后 4 个参数只能以关键字参数方式调用。
+    - 以上参数可以自由选择调用，也可以全部使用默认；后 3 个参数只能以关键字参数方式调用。
 
 
 
@@ -818,6 +817,40 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     
     - 当 alignh 为无效的值时触发 ValueError 异常。
     - 当 alignv 为无效的值时触发 ValueError 异常。
+
+
+
+
+
+24. #### 重构 、刷新表格文本形式方法 - refactorText
+
+    ------
+    
+    > 方法原型
+    
+    ```python
+    refactorText()
+    ```
+    
+    - 用于主动重构、刷新表格的文本形式，一般情况下都会自动调用（比如调用 show、getText 方法时）。
+    - 如果你想获取 Table 类实例的“行”的文本形式列表 rowTexts，则访问该属性前你应该先调用 refactorText 方法。
+
+
+
+
+
+25. #### 获取整个表格的文本形式方法 - getText
+
+    ------
+    
+    > 方法原型
+    
+    ```python
+    getText(start=0, stop=None, header=True, color=False)
+    ```
+    
+    - 用于获取整个表格的文本形式（即获取一个字符串，在终端上打印该字符串就是一个表格）。
+    - 参数 start、stop、header、color 与 show 方法同名参数用法一致。
 
 
 
