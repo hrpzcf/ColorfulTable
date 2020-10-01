@@ -1166,7 +1166,8 @@ class Table(list):
     def limit(item, value):
         '''
         Table 类实例的限制最大列数、列宽、行高方法。
-        :param item: str，可用值：'MAX_COLUMN_NUM'、'MAX_COLUMN_WIDTH'、'MAX_ROW_HEIGHT'。
+        :param item: str，可用值：'MAX_COLUMN_NUM'、'MAX_COLUMN_WIDTH'、
+        'MAX_ROW_HEIGHT'。
         :param value: int，可用值：1~300。
         :return: None
         '''
@@ -1220,20 +1221,14 @@ class Table(list):
         if not colorful:
             _COLORFUL = False
         # 如果 refresh 参数值为 True 或未生成过表格文本形式（not self.rowTexts，即
-        # 储存表格文本形式的列表 self 为空），则调用 _text_refresh 方法生成、刷新表
-        # 格文本形式
+        # 储存表格文本形式的列表 self.rowTexts 为空），则调用 _text_refresh 方法生
+        # 成、刷新表格文本形式
         if refresh or not self.rowTexts:
             self._text_refresh()
         if _NT and not run_on_idle and (file is sys.stdout):
-            self._print_win(start, stop, header)
+            self._out_itemized(start, stop, header)
         else:
-            text = self._text(start, stop, header)
-            try:
-                file.write(text)
-                file.write(_LNSEP)
-                file.flush()
-            except Exception:
-                raise IOError('Failed to write to file or print on terminal.')
+            self._out_overall(start, stop, header, file)
         _COLORFUL = True
         if file is sys.stdout:
             return
@@ -1242,7 +1237,16 @@ class Table(list):
         except Exception:
             pass
 
-    def _print_win(self, start, stop, header):
+    def _out_overall(self, start, stop, header, file):
+        text = self._text(start, stop, header)
+        try:
+            file.write(text)
+            file.write(_LNSEP)
+            file.flush()
+        except Exception:
+            raise IOError('Failed to write to file or print on terminal.')
+
+    def _out_itemized(self, start, stop, header):
         self._col_wids_refresh()
         hat = self._border['hat']
         neck = self._border['neck']
