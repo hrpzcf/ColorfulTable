@@ -594,7 +594,6 @@ class Table(list):
         重写 __str__ 魔法方法，使打印本类实例时以表格形式输出，而不是对象内存地址。
         :return: str，已构建完成的整个表格的字符串形式
         '''
-        self._text_refresh()
         return self._text()
 
     # 将 __repr__ 魔法方法指向 __str__ 方法，输出时用 __str__ 代理。
@@ -1188,7 +1187,6 @@ class Table(list):
         colorful=True,
         header=True,
         file=sys.stdout,
-        refresh=True
     ):
         '''
         Table 类实例的输出表格方法。
@@ -1202,9 +1200,6 @@ class Table(list):
         :param header: bool，是否输出标题行（严格来说是第一行），默认 True
         :param file: TextIOWrapper，Python 文件对象（既可以是标准输出流，也可以是 
         open 函数返回的 Python 文件对象等）
-        :param refresh: bool，是否刷新表格的文本形式（当表格 - Table 类实例调用过 
-        show 方法后，对表格进行增删等操作，再次调用 show 方法时，如果 refresh 参数为 
-        False，那么输出的表格文本将仍与上次输出一样，不会体现表格的增删等操作）
         :return: None
         '''
         if not isinstance(start, int):
@@ -1220,18 +1215,27 @@ class Table(list):
         # 控制代码）
         if not colorful:
             _COLORFUL = False
-        # 如果 refresh 参数值为 True 或未生成过表格文本形式（not self.rowTexts，即
-        # 储存表格文本形式的列表 self.rowTexts 为空），则调用 _text_refresh 方法生
-        # 成、刷新表格文本形式
-        if refresh or not self.rowTexts:
-            self._text_refresh()
-        if _NT and not run_on_idle and (file is sys.stdout):
-            self._out_itemized(start, stop, header)
-        else:
+        # 如果程序非运行于 win 平台或运行于 IDLE 上，则调用整体一次输出方法 _out_overall
+        # 来输出，原因：
+        # 1. win 平台上用 colorama 模块来在终端上输出彩色表格，如果将表格所有项串成一
+        # 个大字符串再一次输出（用 _out_overall 方法输出）的话，颜色会混乱（可能 colorama
+        # 模块有更好的使用方法来避免这些问题，但作者未作深入研究），所以需要逐项输出（用
+        # _out_itemized 方法输出）；
+        # 2. 如果运行于 IDLE 上，因 IDLE 不接受前景色背景色代码控制，所以 colors 模块
+        # 会反回空字符串代替颜色控制代码，所以不管是否运行于 win 平台上，都没有颜色混乱
+        # 的烦恼，所以直接调用整体一次输出方法 _out_overall 来输出就行。
+        if not _NT or run_on_idle:
             self._out_overall(start, stop, header, file)
+        else:
+            self._out_itemized(start, stop, header, file)
+        # 将 _COLORFUL 标志还原为 True，否则下次输出就没有颜色了
         _COLORFUL = True
+        # 如果 file 是标准输出流 sys.stdout，则不用关闭文件，直接返回
+        # 当然如果用户在外部将 sys.stdout 赋值为 Python file object，那关闭文件操作
+        # 也是用户应尽的义务
         if file is sys.stdout:
             return
+        # 尝试关闭文件，关闭失败不作处理，直接返回
         try:
             file.close()
         except Exception:
@@ -1246,42 +1250,42 @@ class Table(list):
         except Exception:
             raise IOError('Failed to write to file or print on terminal.')
 
-    def _out_itemized(self, start, stop, header):
-        self._col_wids_refresh()
+    def _out_itemized(self, start, stop, header, file):
+        self.refactorText()
         hat = self._border['hat']
         neck = self._border['neck']
         belt = self._border['belt']
         shoes = self._border['shoes']
         pad = self._style.cell_pad
-        sys.stdout.write(hat + _LNSEP)
+        file.write(hat + _LNSEP)
         if header:
             headerform = self[0]._form(pad)
             for line in headerform:
                 len_line = len(line)
-                sys.stdout.write(self._style.left_vert)
+                file.write(self._style.left_vert)
                 for ind, string in enumerate(line):
-                    sys.stdout.write(string)
+                    file.write(string)
                     if ind != len_line - 1:
-                        sys.stdout.write(self._style.center_vert)
-                sys.stdout.write(self._style.right_vert + _LNSEP)
-            sys.stdout.write(neck + _LNSEP)
+                        file.write(self._style.center_vert)
+                file.write(self._style.right_vert + _LNSEP)
+            file.write(neck + _LNSEP)
         body = self[1:][start:stop]
         len_body = len(body)
         for index, bodyrow in enumerate(body):
             rowform = bodyrow._form(pad)
             for line in rowform:
-                sys.stdout.write(self._style.left_vert)
+                file.write(self._style.left_vert)
                 len_line = len(line)
                 for ind, string in enumerate(line):
-                    sys.stdout.write(string)
+                    file.write(string)
                     if ind != len_line - 1:
-                        sys.stdout.write(self._style.center_vert)
-                sys.stdout.write(self._style.right_vert + _LNSEP)
+                        file.write(self._style.center_vert)
+                file.write(self._style.right_vert + _LNSEP)
             if (index != len_body - 1) and belt:
-                sys.stdout.write(belt + _LNSEP)
-        sys.stdout.write(shoes + _LNSEP)
+                file.write(belt + _LNSEP)
+        file.write(shoes + _LNSEP)
 
-    def _text_refresh(self):
+    def refactorText(self):
         self._col_wids_refresh()
         widths = [wid + _str_wid(self._style.cell_pad) * 2 for wid in self._col_wids]
         hat = ''.join(
@@ -1336,6 +1340,7 @@ class Table(list):
             )
 
     def _text(self, start=0, stop=None, header=True):
+        self.refactorText()
         hat = self._border['hat']
         neck = self._border['neck']
         belt = self._border['belt']
