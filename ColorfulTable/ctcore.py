@@ -1184,7 +1184,7 @@ class Table(list):
         start=0,
         stop=None,
         *,
-        colorful=True,
+        color=True,
         header=True,
         file=sys.stdout,
     ):
@@ -1192,11 +1192,11 @@ class Table(list):
         Table 类实例的输出表格方法。
         :param start: int，要输出的起始行（不包括标题行），默认 0
         :param stop: int，要输出的结束行（不包括标题行），默认 None（末尾）
-        :param colorful: bool，是否输出彩色表格，默认 True。当你不想输出彩色表格时，
+        :param color: bool，是否输出彩色表格，默认 True。当你不想输出彩色表格时，
         或者你的终端不支持彩色输出时，又或者你要输出到文件（file参数设定为文件对象）
         但不想携带那些杂乱的颜色代码时，这个参数会对你十分有用，你可将它设定为 False，
         这时输出的表格将不携带任何颜色控制代码（如果你之前已有设置好的颜色，它不会被清
-        除，下次你仍可以将 colorful 参数设置为 True，以输出你之前设定好的彩色表格）
+        除，下次你仍可以将 color 参数设置为 True，以输出你之前设定好的彩色表格）
         :param header: bool，是否输出标题行（严格来说是第一行），默认 True
         :param file: TextIOWrapper，Python 文件对象（既可以是标准输出流，也可以是 
         open 函数返回的 Python 文件对象等）
@@ -1210,12 +1210,12 @@ class Table(list):
             raise TypeError('Type of <file> is not Python file object.')
         # 声名全局变量
         global _COLORFUL
-        # 如果参数 colorful 为 False 则将 全局变量 _COLORFUL 设置为 False
+        # 如果参数 color 为 False 则将 全局变量 _COLORFUL 设置为 False
         # （函数 _format_o 会根据 _COLORFUL 是否为 True 来决定是否给表格文本添加颜色
         # 控制代码）
-        if not colorful:
+        if not color:
             _COLORFUL = False
-        # 如果程序非运行于 win 平台或运行于 IDLE 上，则调用整体一次输出方法 _out_overall
+        # 如果程序运行于 win 平台且非运行于 IDLE 上，则调用逐项输出方法 _out_itemized
         # 来输出，原因：
         # 1. win 平台上用 colorama 模块来在终端上输出彩色表格，如果将表格所有项串成一
         # 个大字符串再一次输出（用 _out_overall 方法输出）的话，颜色会混乱（可能 colorama
@@ -1224,10 +1224,10 @@ class Table(list):
         # 2. 如果运行于 IDLE 上，因 IDLE 不接受前景色背景色代码控制，所以 colors 模块
         # 会反回空字符串代替颜色控制代码，所以不管是否运行于 win 平台上，都没有颜色混乱
         # 的烦恼，所以直接调用整体一次输出方法 _out_overall 来输出就行。
-        if not _NT or run_on_idle:
-            self._out_overall(start, stop, header, file)
-        else:
+        if _NT and not run_on_idle:
             self._out_itemized(start, stop, header, file)
+        else:
+            self._out_overall(start, stop, header, file)
         # 将 _COLORFUL 标志还原为 True，否则下次输出就没有颜色了
         _COLORFUL = True
         # 如果 file 是标准输出流 sys.stdout，则不用关闭文件，直接返回
@@ -1339,8 +1339,12 @@ class Table(list):
                 )
             )
 
-    def getText(self, start=0, stop=None, header=True):
+    def getText(self, start=0, stop=None, header=True, color=False):
+        global _COLORFUL
+        if not color:
+            _COLORFUL = False
         self.refactorText()
+        _COLORFUL = True
         hat = self._border['hat']
         neck = self._border['neck']
         belt = self._border['belt']
