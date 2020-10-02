@@ -1344,7 +1344,11 @@ class Table(list):
             belt = _LNSEP
         body = belt.join(self.rowTexts[1:][start:stop])
         if not header:
+            if not body:
+                return 'No table content to print.'
             group = (hat, body, shoes)
+        elif not body:
+            group = (hat, self.rowTexts[0], shoes)
         else:
             group = (hat, self.rowTexts[0], neck, body, shoes)
         return _LNSEP.join(group)
