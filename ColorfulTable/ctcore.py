@@ -337,7 +337,7 @@ class _RowObj(list):
         '''
         return self._fbgcs[index]
 
-    def _gettext(self, left_vert, center_vert, right_vert, padding):
+    def _getrowtext(self, left_vert, center_vert, right_vert, padding):
         '''
         获取"行"的文本格式的方法，即将各单元格所存对象的字符，按对齐、颜色、垂直边框线等要求
         构建的文本格式。
@@ -408,7 +408,7 @@ class _RowObj(list):
         但是以上形式的二维列表不方便把它拼接成一个表示"表格行"的大字符串，
         所以，要把它转换成另一个形式：每个内层列表表示一个小行，小行包含多个单元格，
         但只包含单元格里的一部分(一个单元格里几个小行中的一个)，
-        就如 _gettext 方法中对本方法返回值的示意图所示。
+        就如 _getrowtext 方法中对本方法返回值的示意图所示。
 
         :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边框线
         :return: list[list[str]]，已格式化的"表格行"的二维列表形式，如下：
@@ -453,7 +453,7 @@ class Table(list):
         colfixed=0,
         fbgc=None,
         fill='',
-        style=None
+        style=None,
     ):
         '''
         初始化方法。
@@ -594,7 +594,7 @@ class Table(list):
         重写 __str__ 魔法方法，使打印本类实例时以表格形式输出，而不是对象内存地址。
         :return: str，已构建完成的整个表格的字符串形式
         '''
-        return self.getText()
+        return self.getText(color=True)
 
     # 将 __repr__ 魔法方法指向 __str__ 方法，输出时用 __str__ 代理。
     __repr__ = __str__
@@ -1180,13 +1180,7 @@ class Table(list):
             globals()[item] = value
 
     def show(
-        self,
-        start=0,
-        stop=None,
-        *,
-        color=True,
-        header=True,
-        file=sys.stdout,
+        self, start=0, stop=None, *, color=True, header=True, file=sys.stdout,
     ):
         '''
         Table 类实例的输出表格方法。
@@ -1208,13 +1202,6 @@ class Table(list):
             raise TypeError('Type of parameter <stop> should be "int" or "None".')
         if not isinstance(file, (TextIOWrapper, StdOutputFile, StreamWrapper)):
             raise TypeError('Type of <file> is not Python file object.')
-        # 声名全局变量
-        global _COLORFUL
-        # 如果参数 color 为 False 则将 全局变量 _COLORFUL 设置为 False
-        # （函数 _format_o 会根据 _COLORFUL 是否为 True 来决定是否给表格文本添加颜色
-        # 控制代码）
-        if not color:
-            _COLORFUL = False
         # 如果程序运行于 win 平台且非运行于 IDLE 上，则调用逐项输出方法 _out_itemized
         # 来输出，原因：
         # 1. win 平台上用 colorama 模块来在终端上输出彩色表格，如果将表格所有项串成一
@@ -1225,11 +1212,9 @@ class Table(list):
         # 会反回空字符串代替颜色控制代码，所以不管是否运行于 win 平台上，都没有颜色混乱
         # 的烦恼，所以直接调用整体一次输出方法 _out_overall 来输出就行。
         if _NT and not run_on_idle:
-            self._out_itemized(start, stop, header, file)
+            self._out_itemized(start, stop, header, color, file)
         else:
-            self._out_overall(start, stop, header, file)
-        # 将 _COLORFUL 标志还原为 True，否则下次输出就没有颜色了
-        _COLORFUL = True
+            self._out_overall(start, stop, header, color, file)
         # 如果 file 是标准输出流 sys.stdout，则不用关闭文件，直接返回
         # 当然如果用户在外部将 sys.stdout 赋值为 Python file object，那关闭文件操作
         # 也是用户应尽的义务
@@ -1241,8 +1226,8 @@ class Table(list):
         except Exception:
             pass
 
-    def _out_overall(self, start, stop, header, file):
-        text = self.getText(start, stop, header)
+    def _out_overall(self, start, stop, header, color, file):
+        text = self.getText(start, stop, header, color=color)
         try:
             file.write(text)
             file.write(_LNSEP)
@@ -1250,7 +1235,10 @@ class Table(list):
         except Exception:
             raise IOError('Failed to write to file or print on terminal.')
 
-    def _out_itemized(self, start, stop, header, file):
+    def _out_itemized(self, start, stop, header, color, file):
+        global _COLORFUL
+        if not color:
+            _COLORFUL = False
         self.refactorText()
         hat = self._border['hat']
         neck = self._border['neck']
@@ -1284,6 +1272,7 @@ class Table(list):
             if (index != len_body - 1) and belt:
                 file.write(belt + _LNSEP)
         file.write(shoes + _LNSEP)
+        _COLORFUL = True
 
     def refactorText(self):
         self._col_wids_refresh()
@@ -1331,7 +1320,7 @@ class Table(list):
         self.rowTexts.clear()
         for row_obj in self:
             self.rowTexts.append(
-                row_obj._gettext(
+                row_obj._getrowtext(
                     self._style.left_vert,
                     self._style.center_vert,
                     self._style.right_vert,
