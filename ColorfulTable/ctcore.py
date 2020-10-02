@@ -1245,9 +1245,13 @@ class Table(list):
         belt = self._border['belt']
         shoes = self._border['shoes']
         pad = self._style.cell_pad
+        headerform = self[0]._form(pad)
+        bodylist = self[1:][start:stop]
+        if not header and not bodylist:
+            file.write('No table content to print.\n')
+            return
         file.write(hat + _LNSEP)
         if header:
-            headerform = self[0]._form(pad)
             for line in headerform:
                 len_line = len(line)
                 file.write(self._style.left_vert)
@@ -1256,10 +1260,13 @@ class Table(list):
                     if ind != len_line - 1:
                         file.write(self._style.center_vert)
                 file.write(self._style.right_vert + _LNSEP)
-            file.write(neck + _LNSEP)
-        body = self[1:][start:stop]
-        len_body = len(body)
-        for index, bodyrow in enumerate(body):
+            if bodylist:
+                file.write(neck + _LNSEP)
+            else:
+                file.write(shoes + _LNSEP)
+                return
+        len_body = len(bodylist)
+        for index, bodyrow in enumerate(bodylist):
             rowform = bodyrow._form(pad)
             for line in rowform:
                 file.write(self._style.left_vert)
@@ -1345,7 +1352,7 @@ class Table(list):
         body = belt.join(self.rowTexts[1:][start:stop])
         if not header:
             if not body:
-                return 'No table content to print.'
+                return 'No table content to print.\n'
             group = (hat, body, shoes)
         elif not body:
             group = (hat, self.rowTexts[0], shoes)
