@@ -32,7 +32,7 @@ author = 'hrpzcf'
 
 author_email = 'hrpzcf@foxmail.com'
 
-version = '200930.0.47'
+version = '201002.0.50a0'
 
 website1 = 'https://gitee.com/hrpzcf/colorfultable'
 
