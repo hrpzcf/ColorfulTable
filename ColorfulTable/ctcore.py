@@ -22,6 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+###########################################
+# Use 'black' for source code formatting. #
+###########################################
+
 import sys
 from collections.abc import Generator
 from collections.abc import Iterable
@@ -42,7 +46,7 @@ try:
 except ImportError:
     StdOutputFile = TextIOWrapper
 
-_COLORFUL = True
+_COLOR = True
 _LNSEP = os_linesep
 _NT = os_name == 'nt'
 
@@ -80,7 +84,8 @@ class Style(object):
         '''
         if style not in __STYLES__.split():
             raise ValueError(
-                'No style option like <%s>, available: %s.' % (style, __STYLES__)
+                'No style option like <%s>, available: %s.'
+                % (style, __STYLES__)
             )
 
     def _initialize(self):
@@ -243,7 +248,9 @@ class Style(object):
         '''
         # 要设置的值不是 str 类型则抛出异常。
         if not isinstance(value, str):
-            raise TypeError('Type of attributes of <class "Style"> can only be "str".')
+            raise TypeError(
+                'Type of attributes of <class "Style"> can only be "str".'
+            )
         # 调用父类 __setattr__ 魔法方法设置属性值。
         super().__setattr__(name, value)
 
@@ -257,12 +264,13 @@ class _RowObj(list):
         '''
         初始化方法。
         :param iterable: Iterable，可迭代对象，其中的元素即一行中各单元格的元素。
-        :param cwhandle: list，列宽列表，所有 _RowObj 类实例（即"行"）初始化时
-        都传进同一个列宽列表，所以写 handle（句柄）。
+        :param cwhandle: list，列宽列表，所有 _RowObj 类实例（即"行"）初始化时都传
+        进同一个列宽列表，所以写 handle（句柄）。
         :param rowhit: int，行高（指的是包含多个单元格的"行"的字符行数），不小于 1。
         :param alignh: str，水平对齐方式，可用值见全局变量 __ALIGNH__。
         :param alignv: str，垂直对齐方式，可用值见全局变量 __ALIGNV__。
-        :param fbgc: set[str]，前景色背景色集合，集合内字符串可用值见项目目录下 README.md。
+        :param fbgc: set[str]，前景色背景色集合，集合内字符串可用值见模块目录下
+        README.md。
         '''
         # 调用父类初始化方法初始化，即 list(iterable)，此时实例 self 就是一个列表。
         super().__init__(iterable)
@@ -341,11 +349,11 @@ class _RowObj(list):
         '''
         获取"行"的文本格式的方法，即将各单元格所存对象的字符，按对齐、颜色、垂直边框线等要求
         构建的文本格式。
-        :param left_vert: str，左垂直边框线
-        :param center_vert: str，中间垂直边框线
-        :param right_vert: str，右垂直边框线
-        :param padding: str，单元格内容两侧填充
-        :return: str，构建完成的"行"的文本格式
+        :param left_vert: str，左垂直边框线。
+        :param center_vert: str，中间垂直边框线。
+        :param right_vert: str，右垂直边框线。
+        :param padding: str，单元格内容两侧填充。
+        :return: str，构建完成的"行"的文本格式。
         '''
         # 假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
         # 假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m。
@@ -369,8 +377,8 @@ class _RowObj(list):
     def _colcap(self, index):
         '''
         "表格行"的获取指定列最大列宽值方法。
-        :param index: int，列索引
-        :return: int，最大列宽值
+        :param index: int，列索引。
+        :return: int，最大列宽值。
         '''
         # 注意列宽不能为 0，所以 "..or 1"
         return _str_wid(str(self[index])) or 1
@@ -378,8 +386,8 @@ class _RowObj(list):
     def _colflr(self, index):
         '''
         "表格行"的获取指定列列宽下限方法。
-        :param index: int，列索引
-        :return: int，列宽值下限
+        :param index: int，列索引。
+        :return: int，列宽值下限。
         '''
         # 注意，列宽下限值由列中最大的单个字符宽度决定
         string = str(self[index])
@@ -390,9 +398,9 @@ class _RowObj(list):
     def _align(self, index, alignh, alignv):
         '''
         "表格行"设置单元格对齐方式方法。
-        :param index: int，列索引
-        :param alignh: str，水平对齐方式，可用值见 __ALIGNH__ 全局变量
-        :param alignv: str，垂直对齐方式，可用值见 __ALIGNV__ 全局变量
+        :param index: int，列索引。
+        :param alignh: str，水平对齐方式，可用值见 __ALIGNH__ 全局变量。
+        :param alignv: str，垂直对齐方式，可用值见 __ALIGNV__ 全局变量。
         '''
         if alignh is not None:
             # 将"表格行"的水平对齐方式列表对应索引单元格水平对齐设置为 alignh
@@ -404,13 +412,14 @@ class _RowObj(list):
     def _form(self, padding):
         '''
         创建一个已格式化的"表格行"的二维列表形式，最外层列表表示一个"表格行"，
-        每个内层列表表示"表格行"里的每个单元格，内层列表里的元素表示单元格里不同小行的元素。
-        但是以上形式的二维列表不方便把它拼接成一个表示"表格行"的大字符串，
-        所以，要把它转换成另一个形式：每个内层列表表示一个小行，小行包含多个单元格，
-        但只包含单元格里的一部分(一个单元格里几个小行中的一个)，
-        就如 _getrowtext 方法中对本方法返回值的示意图所示。
-
-        :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边框线
+        每个内层列表表示"表格行"里的每个单元格，内层列表里的元素表示单元格里不同小行的
+        元素。
+        但是以上形式的二维列表不方便把它拼接成一个表示"表格行"的大字符串，所以，要把它
+        转换成另一个形式：每个内层列表表示一个小行，小行包含多个单元格，但只包含单元格
+        里的一部分(一个单元格里几个小行中的一个)，就如 _getrowtext 方法中对本方法返回
+        值的示意图所示。
+        :param padding: str，单元格里左右填充字符，用于防止单元格内容过于贴近垂直边
+        框线。
         :return: list[list[str]]，已格式化的"表格行"的二维列表形式，如下：
             假设"行"的源数据为：['0123', 'abcdefg', 'h', '']
             假设列宽：[3, 3, 3, 2]，行高为 0 (自动)，水平对齐为 c，垂直对齐为 m。
@@ -457,25 +466,27 @@ class Table(list):
     ):
         '''
         初始化方法。
-        :param header: Iterable，可迭代对象，初始化表格时的表格首行，其实与普通行并无区别，
-        删除首行后第二行变首行
-        :param alignh: str，水平对齐方式，单元格未指定水平对齐方式时默认使用该对齐方式，
-        可用值见 __ALIGNH__ 全局变量值，参数默认值为 l
+        :param header: Iterable，可迭代对象，初始化表格时的表格首行，其实与普通行并
+        无区别，删除首行后第二行变首行。
+        :param alignh: str，水平对齐方式，单元格未指定水平对齐方式时默认使用该对齐方
+        式，可用值见 __ALIGNH__ 全局变量值，参数默认值为 l。
         :param alignv: str，垂直对齐方式，单元格未指定垂直对齐方式时默认使用该对齐方式，
-        可用值见 __ALIGNV__ 全局变量值，参数默认值为 t
-        :param rowfixed: int，行高，新添加的行默认使用的行高值，可用值为 0 或
-        小于 MAX_ROW_HEIGHT 的整数，参数默认值为 0
-        :param colfixed: int，列宽，新添加的行、列默认使用的列宽值，可用值为 0 或
-        小于 MAX_COLUMN_WIDTH 的整数，参数默认值为 0
-        :param fbgc: set[str]，包含可用代表颜色的字符串的集合，新增的单元格默认使用该前背景色，
-        参数默认值为空集合，可用的颜色代表字符为同目录下 colors 模块中 _ColorGroup 类的属性名
-        的字符串形式(或见 README.md 文件)
-        :param fill: any，任意数据类型，当添加行或列时，添加的行或列长度短于表格现有列数或行数
-        时，默认使用 fill 来补足长度，参数默认值为空字符串
-        :param style: 数据类型应为 Style 实例，Style 类包含所需的各种边框线
+        可用值见 __ALIGNV__ 全局变量值，参数默认值为 t。
+        :param rowfixed: int，行高，新添加的行默认使用的行高值，可用值为 0 或小于
+        MAX_ROW_HEIGHT 的整数，参数默认值为 0。
+        :param colfixed: int，列宽，新添加的行、列默认使用的列宽值，可用值为 0 或小于
+        MAX_COLUMN_WIDTH 的整数，参数默认值为 0。
+        :param fbgc: set[str]，包含可用代表颜色的字符串的集合，新增的单元格默认使用
+        该前背景色，参数默认值为空集合，可用的颜色代表字符为同目录下 colors 模块中
+        _ColorGroup 类的属性名的字符串形式(或见 README.md 文件)。
+        :param fill: any，任意数据类型，当添加行或列时，添加的行或列长度短于表格现有
+        列数或行数时，默认使用 fill 来补足长度，参数默认值为空字符串。
+        :param style: 数据类型应为 Style 实例，Style 类包含所需的各种边框线。
         '''
         # 检查参数是否符合要求
-        Table._check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style)
+        Table._check_init(
+            header, alignh, alignv, rowfixed, colfixed, fbgc, style
+        )
         # 调用父类初始化方法，因为继承自 list，此时本类实例(self)就是一个列表
         super(Table, self).__init__()
         # rowTexts用于储存表格中"行"的字符串形式
@@ -520,12 +531,14 @@ class Table(list):
         # 边框线的部分组合，依次为：
         # 最顶层一行边框线(hat)、首行与主体分隔线(neck)、
         # 主体中各行直接的分隔线(belt)、最底层一行边框线(shoes)
-        self._border = dict(hat='', neck='', belt='', shoes='')
+        self._border = dict(hat='', neck='', belt='', shoes='', tail='')
+        self._foot_text = ''
+        self._foot_orign = list()
 
     @staticmethod
     def _check_init(header, alignh, alignv, rowfixed, colfixed, fbgc, style):
         '''
-        检查初始化参数是否符合要求方法，如果参数不符合要求则抛出异常，中断程序。
+        检查初始化参数是否符合要求方法，如果参数不符合要求则抛出异常，程序中断。
         '''
         if not isinstance(header, Iterable):
             raise TypeError('The <header> should be an iterable object.')
@@ -574,9 +587,9 @@ class Table(list):
 
     def _check_index(self, rowindex=None, colindex=None):
         '''
-        检查行列索引值是否是整数及是否超出范围方法(索引值为 None 不检查)
-        :param rowindex: int，要检查的行索引值
-        :param colindex: int，要检查的列索引值
+        检查行列索引值是否是整数及是否超出范围方法(索引值为 None 不检查)。
+        :param rowindex: int，要检查的行索引值。
+        :param colindex: int，要检查的列索引值。
         '''
         if rowindex is not None:
             if not isinstance(rowindex, int):
@@ -592,7 +605,7 @@ class Table(list):
     def __str__(self):
         '''
         重写 __str__ 魔法方法，使打印本类实例时以表格形式输出，而不是对象内存地址。
-        :return: str，已构建完成的整个表格的字符串形式
+        :return: str，已构建完成的整个表格的字符串形式。
         '''
         return self.getText(color=True)
 
@@ -604,8 +617,8 @@ class Table(list):
         Table 实例对象的插入列方法。
             1.要插入的列的行数比现有行数多则截断，比现有行数少则用空字符补足；
             2.可不带索引参数 colindex，默认把列插入到所有列末尾。
-        :param colindex: int, 插入位置索引
-        :param column: Iterable, 要插入的列
+        :param colindex: int, 插入位置索引。
+        :param column: Iterable, 要插入的列。
         '''
         # 如果要插入的列 column 值是 None (column 参数默认值是 None)，
         # 则说明 addColumn 方法只接收到一个参数 colindex，而我们规定接收到的参数
@@ -621,7 +634,8 @@ class Table(list):
             )
         if not isinstance(column, Iterable):
             raise TypeError(
-                'Iterable parameter <column> expected, got %s.' % type(column).__name__
+                'Iterable parameter <column> expected, got %s.'
+                % type(column).__name__
             )
         if self._num_cols + 1 > MAX_COLUMN_NUM:
             raise ValueError(
@@ -661,8 +675,8 @@ class Table(list):
         Table 实例的插入行方法。
             1.要插入的行的列数比现有列数多则截断，比现有列数少则用 filler 补足；
             2.可不带索引参数 rowindex，默认把行插入到所有行末尾。
-        :param rowindex: int, 插入位置索引
-        :param row: Iterable, 要插入的行
+        :param rowindex: int, 插入位置索引。
+        :param row: Iterable, 要插入的行。
         '''
         # 同插入列方法 addColumn
         if row is None:
@@ -674,7 +688,8 @@ class Table(list):
             )
         if not isinstance(row, Iterable):
             raise TypeError(
-                'Iterable parameter <row> expected, got %s.' % type(row).__name__
+                'Iterable parameter <row> expected, got %s.'
+                % type(row).__name__
             )
         # 如果row是生成器、迭代器，要转换为列表好进行索引操作
         row_list = list(row)
@@ -707,8 +722,8 @@ class Table(list):
     def getColumn(self, colindex=-1):
         '''
         获取列源数据方法。
-        :param colindex: int，要获取的列的索引
-        :return: list[any...]，要获取的列的列表形式
+        :param colindex: int，要获取的列的索引。
+        :return: list[any...]，要获取的列的列表形式。
         '''
         self._check_index(colindex=colindex)
         if colindex is None:
@@ -718,8 +733,8 @@ class Table(list):
     def getRow(self, rowindex=-1):
         '''
         获取行元数据方法。
-        :param rowindex: int，要获取的行的索引
-        :return: list[any...]，要获取的行的列表形式
+        :param rowindex: int，要获取的行的索引。
+        :return: list[any...]，要获取的行的列表形式。
         '''
         self._check_index(rowindex)
         if rowindex is None:
@@ -729,9 +744,9 @@ class Table(list):
     def getItem(self, rowindex=-1, colindex=-1):
         '''
         获取单元格源数据方法。
-        :param rowindex: int，单元格行索引
-        :param colindex: int，单元格列索引
-        :return: any，获取的单元个源数据
+        :param rowindex: int，单元格行索引。
+        :param colindex: int，单元格列索引。
+        :return: any，获取的单元个源数据。
         '''
         self._check_index(rowindex, colindex)
         if rowindex is None or colindex is None:
@@ -741,9 +756,9 @@ class Table(list):
     def getString(self, rowindex=-1, colindex=-1):
         '''
         获取单元格源数据的字符串形式。
-        :param rowindex: int，单元格行索引
-        :param colindex: int，单元格列索引
-        :return: str，获取的单元个源数据的字符串形式
+        :param rowindex: int，单元格行索引。
+        :param colindex: int，单元格列索引。
+        :return: str，获取的单元个源数据的字符串形式。
         '''
         self._check_index(rowindex, colindex)
         if rowindex is None or colindex is None:
@@ -753,10 +768,10 @@ class Table(list):
     def writeCell(self, rowindex=None, colindex=None, *, value):
         '''
         覆写单元格方法。
-        :param rowindex: int，单元格行索引
-        :param colindex: int，单元格列索引
-        :param value: any，要写入的值，可以是任何受支持的类型
-        :return: None
+        :param rowindex: int，单元格行索引。
+        :param colindex: int，单元格列索引。
+        :param value: any，要写入的值，可以是任何受支持的类型。
+        :return: None。
         '''
         self._check_index(rowindex, colindex)
         # 如果行索引和列索引都为 None 则覆写所有单元格
@@ -787,9 +802,9 @@ class Table(list):
     def clearCell(self, rowindex=None, colindex=None):
         '''
         清除单元格内容方法。
-        :param rowindex: int，单元格行索引
-        :param colindex: int，单元格列索引
-        :return: None
+        :param rowindex: int，单元格行索引。
+        :param colindex: int，单元格列索引。
+        :return: None。
         '''
         # 用 writeCell 方法代理，写入空字符串
         self.writeCell(rowindex, colindex, value='')
@@ -798,17 +813,19 @@ class Table(list):
         '''
         测试表格内容是否为空方法。
             1.行索引 rowindex 和列索引 colindex 都不为 None，则测试对应的单元格；
-            2.行索引 rowindex 为 None，列索引 colindex 不为 None，则测试第 colindex 列整列，反之亦然；
+            2.行索引 rowindex 为 None，列索引 colindex 不为 None，则测试第 colindex
+            列整列，反之亦然；
             3.行索引 rowindex 和列索引 colindex 都为 None，则测试整个表格的所有单元格。
-        :param rowindex: int，单元格行索引
-        :param colindex: int，单元格列索引
-        :return: bool
+        :param rowindex: int，单元格行索引。
+        :param colindex: int，单元格列索引。
+        :return: bool。
         '''
         self._check_index(rowindex, colindex)
         # 如果行和列索引都为 None，则测试整个表格
         if rowindex is None and colindex is None:
             return not any(
-                any(bool(row[colind]) for colind in range(len(row))) for row in self
+                any(bool(row[colind]) for colind in range(len(row)))
+                for row in self
             )
         # 行和列索引其中之一为 None，则测试证列或整行
         elif rowindex is None or colindex is None:
@@ -828,7 +845,8 @@ class Table(list):
         self._check_index(rowindex, colindex)
         if rowindex is None and colindex is None:
             return all(
-                all(bool(row[colind]) for colind in range(len(row))) for row in self
+                all(bool(row[colind]) for colind in range(len(row)))
+                for row in self
             )
         elif rowindex is None or colindex is None:
             if rowindex is None:
@@ -843,8 +861,8 @@ class Table(list):
         Table 类实例对象的删除列方法。
             1.根据列的索引值 colindex 删除对应的列；
             2.将所删除的列以一维列表形式返回。
-        :param colindex: int, 要删除的列的索引值
-        :return: list, 以列表形式返回已删除的列
+        :param colindex: int, 要删除的列的索引值。
+        :return: list, 以列表形式返回已删除的列。
         '''
         # 检查输入参数类型等是否符号要求
         if not isinstance(colindex, int):
@@ -894,9 +912,9 @@ class Table(list):
         Table 类实例对象的设置列的固定列宽方法。
             1.不带列索引参数 colindex，则设置所有列的宽度；
             2.不需要固定列宽则将列宽设置为 0 即可自适应列宽。
-        :param colindex: int, 要设置宽度的列索引
-        :param width: int, 要设置的列宽度
-        :return: None
+        :param colindex: int, 要设置宽度的列索引。
+        :param width: int, 要设置的列宽度。
+        :return: None。
         '''
         # 如果 width 参数值为 None，可能只传进一个参数 colindex
         # 因为规定可以不带 colindex 参数，传进的一个参数默认为 width，所以需要将 colindex 的
@@ -914,7 +932,8 @@ class Table(list):
                 raise IndexError('Column index out of range.')
         if not isinstance(width, int):
             raise TypeError(
-                'Integer parameter <width> expected, got %s.' % type(width).__name__
+                'Integer parameter <width> expected, got %s.'
+                % type(width).__name__
             )
         if width > MAX_COLUMN_WIDTH:
             raise ValueError(
@@ -951,7 +970,8 @@ class Table(list):
                 raise IndexError('Row index out of range.')
         if not isinstance(height, int):
             raise TypeError(
-                'Integer parameter <height> expected, got %s.' % type(height).__name__
+                'Integer parameter <height> expected, got %s.'
+                % type(height).__name__
             )
         if height > MAX_ROW_HEIGHT:
             raise ValueError(
@@ -968,7 +988,9 @@ class Table(list):
             return
         self[rowindex]._height(height)
 
-    def setAlignment(self, rowindex=None, colindex=None, *, alignh=None, alignv=None):
+    def setAlignment(
+        self, rowindex=None, colindex=None, *, alignh=None, alignv=None
+    ):
         '''
         Table 类实例的设置对齐方式方法。
             1.行索引 rowindex 和列索引 colindex 参数可以自由省略或写 None；
@@ -978,11 +1000,11 @@ class Table(list):
             4.如需设置对齐方式，则对齐方式 alignh 或 alignv 需以关键字参数形式调用。
             5.alignh 和 alignv 的可用值分别为 'l','left','c','center','r','right'
             和 't','top','m','middle','b','bottom'。
-        :param rowindex: int，行索引
-        :param colindex: int，列索引
-        :param alignh: str，水平对齐方式
-        :param alignv: str，垂直对齐方式
-        :return: None
+        :param rowindex: int，行索引。
+        :param colindex: int，列索引。
+        :param alignh: str，水平对齐方式。
+        :param alignv: str，垂直对齐方式。
+        :return: None。
         '''
         # 检查参数是否符合要求，不符合则抛出异常
         if not (isinstance(rowindex, int) or rowindex is None):
@@ -1035,10 +1057,10 @@ class Table(list):
         Table 类实例的设置颜色方法。
             1.设置颜色前会清空单元格原颜色集合；
             2.颜色代码(字符串)的可用值见 README.md 中的颜色代码表格。
-        :param rowindex:  int，行索引
-        :param colindex:  int，列索引
-        :param clrs: list|tuple|set[str...]，颜色代码(字符串)集合
-        :return: None
+        :param rowindex:  int，行索引。
+        :param colindex:  int，列索引。
+        :param clrs: list|tuple|set[str...]，颜色代码(字符串)集合。
+        :return: None。
         '''
         if not (isinstance(rowindex, int) or rowindex is None):
             raise TypeError(
@@ -1084,13 +1106,14 @@ class Table(list):
     def getColor(self, rowindex, colindex):
         '''
         Table 类实例的获取单元格颜色集合方法。
-        该方法会返回单元格的颜色代码（字符串）集合，当不想用 setColor 方法（会先清空指定单元格
-        的所有颜色设置，再设置指定颜色）时，可以调用 getColor 方法取得单元格的颜色集合，再用集
-        合方法对该集合内元素（颜色代码）进行增删操作，即可修改该单元格的前背景色。
+        该方法会返回单元格的颜色代码（字符串）集合，当不想用 setColor 方法（会先清空
+        指定单元格的所有颜色设置，再设置指定颜色）时，可以调用 getColor 方法取得单元
+        格的颜色集合，再用集合方法对该集合内元素（颜色代码）进行增删操作，即可修改该单
+        元格的前背景色。
         当然，该方法不限于以上用法。
-        :param rowindex:  int，列索引
-        :param colindex:  int，列索引
-        :return: set[str...]，指定单元格的颜色集合
+        :param rowindex:  int，列索引。
+        :param colindex:  int，列索引。
+        :return: set[str...]，指定单元格的颜色集合。
         '''
         self._check_index(rowindex, colindex)
         # 调用 _RowObj（行）实例的 _getclr 方法获取单元格颜色集合
@@ -1101,8 +1124,8 @@ class Table(list):
         Table 类实例的设置默认前背景色方法。
         本方法与创建 Table 类实例时的初始化参数 fbgc 修改的是同一个属性值。
         当单元格未设置前背景色时，将使用本方法设置的前背景色。
-        :param values: str，接受不定长参数，参数应为可用的颜色代码（字符串）
-        :return: None
+        :param values: str，接受不定长参数，参数应为可用的颜色代码（字符串）。
+        :return: None。
         '''
         # 检查参数值是否符合要求
         if not all(isinstance(s, str) for s in values):
@@ -1118,11 +1141,11 @@ class Table(list):
     def defaultAlign(self, *, alignh=None, alignv=None):
         '''
         Table 类实例的设置默认对齐方式（水平和垂直）方法。
-        本方法与创建 Table 类实例时的初始化参数 alignh、alignv 修改的分别是同一个属性值。
-        当单元格未设置水平、垂直对齐方式时，将使用本方法设置的对齐方式。
-        :param alignh: str，可用的对齐方式字符串（'l','left','c','center','r','right'）
-        :param alignv: str，可用的对齐方式字符串（'t','top','m','middle','b','bottom'）
-        :return: None
+        本方法与创建 Table 类实例时的初始化参数 alignh、alignv 修改的分别是同一个属
+        性值。当单元格未设置水平、垂直对齐方式时，将使用本方法设置的对齐方式。
+        :param alignh: str，可用的对齐方式字符串：'l','left','c','center','r','right'。
+        :param alignv: str，可用的对齐方式字符串：'t','top','m','middle','b','bottom'。
+        :return: None。
         '''
         if alignh not in __ALIGNH__.split() and alignh is not None:
             raise ValueError(
@@ -1148,7 +1171,9 @@ class Table(list):
         :return: None
         '''
         if not isinstance(style, Style):
-            raise TypeError('Parameter <style> should be an instance of class "Style".')
+            raise TypeError(
+                'Parameter <style> should be an instance of class "Style".'
+            )
         self._style = style
 
     def defaultFill(self, fill=''):
@@ -1180,26 +1205,35 @@ class Table(list):
             globals()[item] = value
 
     def show(
-        self, start=0, stop=None, *, color=True, header=True, file=sys.stdout,
+        self,
+        start=0,
+        stop=None,
+        *,
+        color=True,
+        header=True,
+        file=sys.stdout,
+        footer=False,
     ):
         '''
         Table 类实例的输出表格方法。
         :param start: int，要输出的起始行（不包括标题行），默认 0
-        :param stop: int，要输出的结束行（不包括标题行），默认 None（末尾）
-        :param color: bool，是否输出彩色表格，默认 True。当你不想输出彩色表格时，
-        或者你的终端不支持彩色输出时，又或者你要输出到文件（file参数设定为文件对象）
-        但不想携带那些杂乱的颜色代码时，这个参数会对你十分有用，你可将它设定为 False，
-        这时输出的表格将不携带任何颜色控制代码（如果你之前已有设置好的颜色，它不会被清
-        除，下次你仍可以将 color 参数设置为 True，以输出你之前设定好的彩色表格）
-        :param header: bool，是否输出标题行（严格来说是第一行），默认 True
-        :param file: TextIOWrapper，Python 文件对象（既可以是标准输出流，也可以是 
-        open 函数返回的 Python 文件对象等）
-        :return: None
+        :param stop: int，要输出的结束行（不包括标题行），默认 None（末尾）。
+        :param color: bool，是否输出彩色表格，默认 True。当你不想输出彩色表格时，或
+        者你的终端不支持彩色输出时，又或者你要输出到文件（file参数设定为文件对象）但不
+        想携带那些杂乱的颜色代码时，这个参数会对你十分有用，你可将它设定为 False，这时
+        输出的表格将不携带任何颜色控制代码（如果你之前已有设置好的颜色，它不会被清除，
+        下次你仍可以将 color 参数设置为 True，以输出你之前设定好的彩色表格）。
+        :param header: bool，是否输出标题行（严格来说是第一行），默认 True。
+        :param file: TextIOWrapper，Python 文件对象（既可以是标准输出流，也可以是
+        open 返回的 Python 文件对象等）。
+        :return: None。
         '''
         if not isinstance(start, int):
             raise TypeError('Type of parameter <start> should be "int".')
         if not isinstance(stop, int) and stop is not None:
-            raise TypeError('Type of parameter <stop> should be "int" or "None".')
+            raise TypeError(
+                'Type of parameter <stop> should be "int" or "None".'
+            )
         if not isinstance(file, (TextIOWrapper, StdOutputFile, StreamWrapper)):
             raise TypeError('Type of <file> is not Python file object.')
         # 如果程序运行于 win 平台且非运行于 IDLE 上，则调用逐项输出方法 _out_itemized
@@ -1212,9 +1246,9 @@ class Table(list):
         # 会反回空字符串代替颜色控制代码，所以不管是否运行于 win 平台上，都没有颜色混乱
         # 的烦恼，所以直接调用整体一次输出方法 _out_overall 来输出就行。
         if _NT and not run_on_idle:
-            self._out_itemized(start, stop, header, color, file)
+            self._out_itemized(start, stop, header, footer, color, file)
         else:
-            self._out_overall(start, stop, header, color, file)
+            self._out_overall(start, stop, header, footer, color, file)
         # 如果 file 是标准输出流 sys.stdout，则不用关闭文件，直接返回
         # 当然如果用户在外部将 sys.stdout 赋值为 Python file object，那关闭文件操作
         # 也是用户应尽的义务
@@ -1226,20 +1260,22 @@ class Table(list):
         except Exception:
             pass
 
-    def _out_overall(self, start, stop, header, color, file):
-        text = self.getText(start, stop, header, color=color)
+    def _out_overall(self, start, stop, header, footer, color, file):
+        text = self.getText(start, stop, header, footer, color=color)
         try:
-            file.write(text)
-            file.write(_LNSEP)
+            file.write(text + _LNSEP)
+            if footer:
+                file.write(self._foot_text + _LNSEP)
+                file.write(self._border['tail'] + _LNSEP)
             file.flush()
         except Exception:
             raise IOError('Failed to write to file or print on terminal.')
 
-    def _out_itemized(self, start, stop, header, color, file):
-        global _COLORFUL
+    def _out_itemized(self, start, stop, header, footer, color, file):
+        global _COLOR
         if not color:
-            _COLORFUL = False
-        self.refactorText()
+            _COLOR = False
+        self.refactorText(footer=footer)
         hat = self._border['hat']
         neck = self._border['neck']
         belt = self._border['belt']
@@ -1264,6 +1300,17 @@ class Table(list):
                 file.write(neck + _LNSEP)
             else:
                 file.write(shoes + _LNSEP)
+                if footer:
+                    file.write(
+                        ''.join(
+                            (
+                                self._foot_text,
+                                _LNSEP,
+                                self._border['tail'],
+                                _LNSEP,
+                            )
+                        )
+                    )
                 return
         len_body = len(bodylist)
         for index, bodyrow in enumerate(bodylist):
@@ -1279,11 +1326,19 @@ class Table(list):
             if (index != len_body - 1) and belt:
                 file.write(belt + _LNSEP)
         file.write(shoes + _LNSEP)
-        _COLORFUL = True
+        if footer:
+            file.write(
+                ''.join(
+                    (self._foot_text, _LNSEP, self._border['tail'], _LNSEP)
+                )
+            )
+        _COLOR = True
 
-    def refactorText(self):
+    def refactorText(self, footer=False):
         self._col_wids_refresh()
-        widths = [wid + _str_wid(self._style.cell_pad) * 2 for wid in self._col_wids]
+        widths = [
+            wid + _str_wid(self._style.cell_pad) * 2 for wid in self._col_wids
+        ]
         hat = ''.join(
             (
                 self._style.top_left,
@@ -1311,12 +1366,40 @@ class Table(list):
                 self._style.right_cross,
             )
         )
+        bottom_left = (
+            self._style.left_cross if footer else self._style.bottom_left
+        )
+        bottom_right = (
+            self._style.right_cross if footer else self._style.bottom_right
+        )
         shoes = ''.join(
             (
-                self._style.bottom_left,
+                bottom_left,
                 self._style.bottom_cross.join(
                     [self._style.bottom_horz * wid for wid in widths]
                 ),
+                bottom_right,
+            )
+        )
+        padding_width = _str_wid(self._style.cell_pad) * 2
+        foot_width = sum(wid + padding_width for wid in self._col_wids) + (
+            self._num_cols - 1
+        ) * _str_wid(self._style.bottom_cross)
+
+        foot_ln = _LNSEP.join(self._foot_orign)
+        foot_rowobj = _RowObj(
+            (foot_ln,), [foot_width - padding_width], 0, 'l', 't', {},
+        )
+        self._foot_text = foot_rowobj._getrowtext(
+            self._style.left_vert,
+            self._style.center_vert,
+            self._style.right_vert,
+            self._style.cell_pad,
+        )
+        tail = ''.join(
+            (
+                self._style.bottom_left,
+                self._style.bottom_horz * foot_width,
                 self._style.bottom_right,
             )
         )
@@ -1324,6 +1407,7 @@ class Table(list):
         self._border['neck'] = neck
         self._border['belt'] = belt
         self._border['shoes'] = shoes
+        self._border['tail'] = tail
         self.rowTexts.clear()
         for row_obj in self:
             self.rowTexts.append(
@@ -1335,12 +1419,14 @@ class Table(list):
                 )
             )
 
-    def getText(self, start=0, stop=None, header=True, color=False):
-        global _COLORFUL
+    def getText(
+        self, start=0, stop=None, header=True, footer=False, color=False
+    ):
+        global _COLOR
         if not color:
-            _COLORFUL = False
-        self.refactorText()
-        _COLORFUL = True
+            _COLOR = False
+        self.refactorText(footer=footer)
+        _COLOR = True
         hat = self._border['hat']
         neck = self._border['neck']
         belt = self._border['belt']
@@ -1359,6 +1445,32 @@ class Table(list):
         else:
             group = (hat, self.rowTexts[0], neck, body, shoes)
         return _LNSEP.join(group)
+
+    def setFoot(self, footnotes):
+        '''
+        Table 类实例的添加脚注方法。
+        :param footnotes: list[str]，脚注列表，
+        列表里每个字符串显示为一行，字符串中也可以用换行符自行换行。
+        :return: None
+        '''
+        if not isinstance(footnotes, (list, tuple)):
+            raise ValueError(
+                'Parameter <footnotes> should be a list containing strings.'
+            )
+        if not all(isinstance(s, str) for s in footnotes):
+            raise ValueError(
+                'Parameter <footnotes> should be a list containing strings.'
+            )
+        self._foot_orign.clear()
+        self._foot_orign.extend(footnotes)
+
+    def getFoot(self):
+        '''
+        Table 类实例的获取脚注方法，外部可以用列表方法对该返回值进行修改，将直接对
+        Table 类实例的当前脚注列表生效。
+        :return: list[str]，包含字符串的脚注列表。
+        '''
+        return self._foot_orign
 
     def _col_wids_refresh(self):
         self._col_wids.clear()
@@ -1605,7 +1717,7 @@ def _format_h(stringlist, colwid, alignh):
 
 def _format_o(stringlist, fbgc, padding):
     mixed_color = ''
-    if _COLORFUL:
+    if _COLOR:
         for color in fbgc:
             mixed_color += getattr(_colors, color)
     for index, string in enumerate(stringlist):
@@ -1675,4 +1787,3 @@ def _rsplit(string, width):
 
 # TODO BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，
 #  对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
-# TODO BUG: 表格不添加任何列时，打印出来的边框线有异常。
