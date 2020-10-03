@@ -77,7 +77,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    
    可选**关键字**参数，该参数是默认的单元格前景色和背景色，参数值数据类型应为包含颜色代码(字符串)的列表(list)、元组(tuple)、集合(set)，默认值为空。可用颜色代码见下表：
 
-   | 序号  |   颜色代码(字符串) | 代表颜色               |
+   | 序号  | 颜色代码(字符串) | 代表颜色               |
    | :---: | ---------------: | :--------------------- |
    |   1   |         fg_reset | 重置前景色和背景色     |
    |   2   |           fg_red | 前景红色               |
@@ -133,7 +133,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   addColumn(colindex, column)
+   addColumn(colindex, column=None)
    ```
    
    - colindex 为索引参数，表示要插入列的位置。
@@ -181,7 +181,7 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
    > 方法原型
    
    ```python
-   addRow(rowindex, row)
+   addRow(rowindex, row=None)
    ```
    
    - colindex 为索引参数，表示要插入行的位置。
@@ -733,14 +733,15 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
     > 方法原型
 
     ```python
-    show(start=0, stop=None, *, color=True, header=True, file=sys.stdout)
+    show(start=0, stop=None, *, color=True, header=True, footer=False, file=sys.stdout)
     ```
 
     - start 和 stop 为要输出的表格的起始行和结束行（不包括标题行），数据类型应为整数。
     - color 为是否要按设置的颜色将表格打印到终端上，值为 False 将按默认颜色打印（设置的颜色不会被清除，下次 color 为 True 时仍然可以按已经设置的颜色打印），数据类型应为布尔值。
     - header 为是否显示标题行，数据类型应为布尔值。
-    - file 为 Python 文件对象，默认为标准输出流 sys.stdout。
-    - 以上参数可以自由选择调用，也可以全部使用默认；后 3 个参数只能以关键字参数方式调用。
+    - footer 为是否显示脚注，数据类型应为布尔值。
+    - file 为输出目标，可以是 Python 文件对象（Python file object），默认为标准输出流 sys.stdout。
+    - 以上参数可以自由选择调用，也可以全部使用默认；后 4 个参数只能以关键字参数方式调用。
 
 
 
@@ -822,37 +823,78 @@ ColorfulTable 是一个用于在终端屏幕上打印漂亮表格的 Python3 模
 
 
 
-24. #### 重构 、刷新表格文本形式方法 - refactorText
+24. #### 重构 、刷新表格字符串形式方法 - refactorText
 
     ------
     
     > 方法原型
     
     ```python
-    refactorText()
+    refactorText(footer=False)
     ```
     
-    - 用于主动重构、刷新表格的文本形式，一般情况下都会自动调用（比如调用 show、getText 方法时）。
-    - 如果你想获取 Table 类实例的“行”的文本形式列表 rowTexts，则访问该属性前你应该先调用 refactorText 方法。
+    - footer 参数应为布尔型 bool（True、False），表示是否生成带脚注的表格字符串形式。
+    - 用于主动重构、刷新表格的字符串形式，一般情况下都会自动调用（比如调用 show、getText 方法时）。
+    - 如果你想获取 Table 类实例的“行”的字符串形式列表 rowTexts，则访问该属性前你应该先调用 refactorText 方法。
 
 
 
 
 
-25. #### 获取整个表格的文本形式方法 - getText
+25. #### 获取整个表格的字符串形式方法 - getText
 
     ------
     
     > 方法原型
     
     ```python
-    getText(start=0, stop=None, header=True, color=False)
+    getText(start=0, stop=None, header=True, footer=False, color=False)
     ```
     
-    - 用于获取整个表格的文本形式（即获取一个字符串，在终端上打印该字符串就是一个表格）。
-    - 参数 start、stop、header、color 与 show 方法同名参数用法一致。
+    - 用于获取整个表格的字符串形式（即获取一个字符串，在终端上打印该字符串就是一个表格）。
+    - 参数 start、stop、header、footer、color 与 show 方法同名参数用法一致。
 
 
+
+
+
+26. #### 设置脚注方法 - setFoot
+
+    ------
+    
+    > 方法原型
+
+    ```python
+    setFoot(footnotes)
+    ```
+
+    - 参数 footnotes 应为包含字符串的列表 list 或元组 tuple。
+    - footnotes 中每一个元素（字符串）在表格脚注中都是一行（字符串超过表格宽度会自动换行），但也可以在字符串中增加换行符进行主动换行。
+
+    
+    
+    > 异常
+    
+    - 当 footnotes 不是列表 list 或元组 tuple 中的一种时，触发 ValueError 异常。
+    - 当 footnotes 中元素有非字符串 str 时，触发 ValueError 异常。
+    
+
+
+
+
+
+27. #### 获取脚注方法 - getFoot
+
+    ------
+
+    > 方法原型
+
+    ```python
+    getFoot()
+    ```
+
+    - 该方法返回当前 Table 类实例的脚注列表（包含字符串 str 的列表 list）。
+    - 外部可以用列表方法对该返回值进行操作，操作将直接对 Table 类实例的当前脚注列表生效。
 
 
 
