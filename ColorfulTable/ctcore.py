@@ -1479,7 +1479,12 @@ class Table(list):
             if self._col_fixeds[ind] != 0 and self._col_fixeds[ind] < width:
                 final_width = width
             elif self._col_fixeds[ind] == 0:
-                final_width = self._col_caps[ind]
+                _col_cap = self._col_caps[ind]
+                final_width = (
+                    _col_cap
+                    if _col_cap <= MAX_COLUMN_WIDTH
+                    else MAX_COLUMN_WIDTH
+                )
             else:
                 final_width = self._col_fixeds[ind]
             self._col_wids.append(final_width)
@@ -1783,7 +1788,3 @@ def _rsplit(string, width):
     if stop > 0:
         substrings.insert(0, string[:stop])
     return substrings
-
-
-# TODO BUG：添加的字符串长度超过 MAX_COLUMN_WIDTH 时，
-#  对应列的列宽上限会突破 MAX_COLUMN_WIDTH 的限制。
