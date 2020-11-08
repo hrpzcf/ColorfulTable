@@ -1,15 +1,13 @@
 import os
-
 from setuptools import find_packages, setup
-
 from colorfultable import author, author_email, name, version, website1
 
 description = 'A module to help print beautiful table on the terminal.'
-long_description = description
-
-if os.path.exists('README.md'):
+try:
     with open('README.md', 'r', encoding='utf-8') as mdfile:
         long_description = mdfile.read()
+except:
+    long_description = description
 
 install_requires = ['colorama>=0.4.3'] if os.name == 'nt' else None
 
@@ -31,9 +29,8 @@ setup(
     install_requires=install_requires,
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
     ],
-    keywords=['table', 'console', 'terminal', 'colorful', 'text'],
+    keywords=['colorful', 'table', 'terminal', 'console', 'text'],
 )
